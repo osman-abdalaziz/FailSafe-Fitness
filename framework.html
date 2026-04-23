@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MetricFit Design Framework</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="app-shell">
+
+        <header class="framework-section py-md border-b">
+            <div class="flex align-center justify-between">
+                <h1>MetricFit</h1>
+                <span class="mf-badge primary">Framework v2.1</span>
+            </div>
+            <p>Unified, elite, data-driven design system for the application. (Zero Inline Styles)</p>
+        </header>
+
+        <section class="framework-section">
+            <h4>01. Core Visual Identity</h4>
+            <div class="mf-card glow-primary mt-sm">
+                <h2>Pure OLED Dark Mode</h2>
+                <p>The interface relies on a deep black background (#0b1120) to save battery life and highlight subtle
+                    neon data points.</p>
+                <div class="flex gap-sm mt-md">
+                    <div class="flex-1 color-swatch bg-primary" title="Primary Accent"></div>
+                    <div class="flex-1 color-swatch bg-success" title="Success/PR"></div>
+                    <div class="flex-1 color-swatch bg-error" title="Error/Warning">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="framework-section">
+            <h4>02. Typography & Data Architecture</h4>
+            <div class="mf-card mt-sm">
+                <h1>Heading H1 (2.25rem)</h1>
+                <h2>Subheading H2 (1.5rem)</h2>
+                <h3>Card Title H3 (1.125rem)</h3>
+                <p>This is standard paragraph text P (1rem). The Inter font provides clinical cleanliness and clarity.
+                </p>
+                <p class="text-sm">Small explanatory text text-sm (0.875rem).</p>
+
+                <div class="mt-md pt-sm border-t">
+                    <h4>Dynamic Numbers Alignment (Tabular Nums)</h4>
+                    <p>Crucial for aligning weights and macros properly:</p>
+                    <p class="tabular-nums text-xl font-black">
+                        105.0 <span class="text-muted text-sm font-bold">kg</span> × 08
+                    </p>
+                    <p class="tabular-nums text-success font-bold">
+                        +120 <span class="text-muted">kcal remaining</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="framework-section">
+            <h4>03. Action Buttons</h4>
+            <div class="mf-card mt-sm grid gap-md">
+
+                <div class="flex gap-sm flex-wrap">
+                    <button class="mf-btn mf-btn-primary">
+                        <i class="fas fa-play"></i> Start Workout
+                    </button>
+                    <button class="mf-btn mf-btn-outline">
+                        <i class="fas fa-history"></i> History
+                    </button>
+                    <button class="mf-btn-text">Cancel Action</button>
+                </div>
+
+                <div class="flex gap-sm align-center">
+                    <button class="mf-btn mf-btn-primary mf-btn-sm bg-success">
+                        <i class="fas fa-check"></i> Save Session
+                    </button>
+                    <button class="mf-btn mf-btn-outline mf-btn-sm text-error">
+                        <i class="fas fa-trash"></i> Delete Meal
+                    </button>
+                </div>
+
+                <div class="flex gap-sm">
+                    <button class="mf-btn-icon">
+                        <i class="fas fa-barcode"></i>
+                    </button>
+                    <button class="mf-btn-icon">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                    <button class="mf-btn-icon active text-primary">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="framework-section">
+            <h4>04. Forms & Inputs</h4>
+            <div class="mf-card mt-sm">
+
+                <div class="mf-form-group">
+                    <label class="mf-label">Full Name</label>
+                    <div class="mf-input-wrapper">
+                        <i class="fas fa-user mf-input-icon"></i>
+                        <input type="text" class="mf-input" placeholder="Othman">
+                    </div>
+                </div>
+
+                <div class="mf-form-group">
+                    <label class="mf-label">Daily Body Weight (kg)</label>
+                    <div class="mf-input-wrapper">
+                        <i class="fas fa-weight-scale mf-input-icon"></i>
+                        <input type="number" class="mf-input" placeholder="85.5">
+                    </div>
+                </div>
+
+                <div class="mf-form-group">
+                    <label class="mf-label">Ghost Fill Input (Previous Session)</label>
+                    <div class="mf-input-wrapper pos-rel">
+                        <i class="fas fa-dumbbell mf-input-icon"></i>
+                        <input type="text" class="mf-input ghost-fill" placeholder="105.0">
+                        <span class="text-sm text-muted pos-abs-right">kg</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="framework-section">
+            <h4>05. Data Display Cards</h4>
+            <div class="grid gap-md mt-sm">
+
+                <div class="mf-card interactive border-primary">
+                    <div class="flex justify-between align-start">
+                        <div>
+                            <h3>Bench Press</h3>
+                            <p class="text-sm">Chest | Barbell</p>
+                        </div>
+                        <span class="mf-badge success tabular-nums">+5 kg PR</span>
+                    </div>
+                    <div class="mt-md pt-sm border-t">
+                        <p class="text-muted tabular-nums">Last Session: <span class="text-main">100 kg × 8 reps</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mf-card glass glow-primary">
+                    <div class="flex gap-md align-center">
+                        <div class="macro-ring-placeholder">
+                            <span class="text-xs text-muted tabular-nums">180/200</span>
+                        </div>
+                        <div class="flex-1">
+                            <h3>Dynamic Calorie Balance</h3>
+                            <p class="tabular-nums text-success text-glow text-xl font-black">
+                                1,850 <span class="text-xs text-muted font-bold">remaining today</span>
+                            </p>
+                            <div class="mf-progress-bar mt-xs">
+                                <div class="mf-progress-fill" style="width: 75%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="framework-section">
+            <h4>06. Core UX Elements</h4>
+
+            <div class="mf-card">
+                <h4>Session Logging Row (Weight × Reps × Confirm)</h4>
+                <div class="set-row tabular-nums text-sm">
+                    <span class="mf-label text-center">Weight</span>
+                    <span class="mf-label text-center">Reps</span>
+                    <span class="mf-label text-center">Done</span>
+                </div>
+                <div class="set-row tabular-nums">
+                    <input type="number" class="mf-input mf-btn-sm text-center px-0" placeholder="105.0">
+                    <input type="number" class="mf-input mf-btn-sm text-center px-0" placeholder="8">
+                    <div class="flex justify-center">
+                        <input type="checkbox" class="mf-checkbox">
+                    </div>
+                </div>
+            </div>
+
+            <div class="ai-cue-box mt-md">
+                <i class="fas fa-triangle-exclamation icon-lg mt-xs"></i>
+                <div>
+                    <h3>Biomechanical Cue (AI)</h3>
+                    <p class="text-sm">"Keep your elbows tucked at a 45-degree angle to protect the anterior delt at
+                        this weight."</p>
+                </div>
+            </div>
+
+            <div class="mf-card glass border-success flex gap-sm align-center">
+                <div class="flex-1">
+                    <h3>Protein</h3>
+                    <p class="tabular-nums">
+                        150 <span class="text-xs text-muted">/ 160 g</span>
+                    </p>
+                </div>
+                <div class="flex-1">
+                    <h3>Fiber</h3>
+                    <p class="tabular-nums text-success">
+                        28 <span class="text-xs text-muted">/ 25 g</span> <i class="fas fa-circle-check"></i>
+                    </p>
+                </div>
+                <div class="flex-1">
+                    <h3>Sugar</h3>
+                    <p class="tabular-nums text-error">
+                        65 <span class="text-xs text-muted">/ 40 g</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+    <nav class="app-nav">
+        <a href="#" class="nav-item active">
+            <i class="fas fa-dumbbell"></i>
+            <span>Workout</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-apple-whole"></i>
+            <span>Nutrition</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-chart-line"></i>
+            <span>Progress</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-user-gear"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+</body>
+
+</html>
