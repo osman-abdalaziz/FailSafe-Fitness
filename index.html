@@ -5,18 +5,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MetricFit</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+        integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
 
-    <div class="app-shell app-shell-hidden">
+    <div class="app-shell app-shell-hidden" id="core-app">
 
         <header class="framework-section py-md border-b">
             <div class="flex align-center justify-between">
                 <h1 id="page-title">Workout</h1>
                 <span class="mf-badge primary"><i class="fas fa-wifi"></i> Online</span>
+                <button id="btn-logout" class="mf-btn-text text-error" title="Sign Out"><i
+                        class="fas fa-power-off icon-lg"></i></button>
             </div>
         </header>
 
@@ -45,7 +49,7 @@
         </main>
     </div>
 
-    <nav class="app-nav app-shell-hidden">
+    <nav class="app-nav app-shell-hidden" id="core-nav">
         <a href="#workout" class="nav-item active" data-target="view-workout">
             <i class="fas fa-dumbbell"></i>
             <span>Workout</span>
@@ -71,13 +75,13 @@
             <p class="text-muted">Clinical-Grade Training & Nutrition Tracker</p>
         </div>
 
-        <div class="mf-card w-100 max-w-400">
-            <form id="auth-form">
+        <div id="section-login" class="mf-card w-100 max-w-400">
+            <form id="form-login">
                 <div class="mf-form-group">
                     <label class="mf-label">Email Address</label>
                     <div class="mf-input-wrapper">
                         <i class="fas fa-envelope mf-input-icon"></i>
-                        <input type="email" id="auth-email" class="mf-input" placeholder="user@example.com" required>
+                        <input type="email" id="login-email" class="mf-input" placeholder="user@example.com" required>
                     </div>
                 </div>
 
@@ -85,24 +89,73 @@
                     <label class="mf-label">Password</label>
                     <div class="mf-input-wrapper">
                         <i class="fas fa-lock mf-input-icon"></i>
-                        <input type="password" id="auth-password" class="mf-input" placeholder="••••••••" required>
+                        <input type="password" id="login-password" class="mf-input" placeholder="••••••••" required>
                     </div>
                 </div>
 
-                <button type="submit" class="mf-btn mf-btn-primary w-100 mt-sm" id="btn-login">
+                <button type="submit" class="mf-btn mf-btn-primary w-100 mt-sm">
                     <i class="fas fa-right-to-bracket"></i> Authenticate
                 </button>
 
                 <div class="text-center mt-md border-t pt-md">
                     <p class="text-sm">Don't have an account?</p>
-                    <button type="button" class="mf-btn-text w-100 mt-xs" id="btn-register">Create Clinical
+                    <button type="button" class="mf-btn-text w-100 mt-xs" id="toggle-to-register">Create Clinical
                         Profile</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="section-register" class="mf-card w-100 max-w-400 app-shell-hidden">
+            <form id="form-register">
+                <div class="mf-form-group">
+                    <label class="mf-label">Full Name</label>
+                    <div class="mf-input-wrapper">
+                        <i class="fas fa-user mf-input-icon"></i>
+                        <input type="text" id="reg-name" class="mf-input" placeholder="John Doe" required>
+                    </div>
+                </div>
+
+                <div class="mf-form-group">
+                    <label class="mf-label">Email Address</label>
+                    <div class="mf-input-wrapper">
+                        <i class="fas fa-envelope mf-input-icon"></i>
+                        <input type="email" id="reg-email" class="mf-input" placeholder="user@example.com" required>
+                    </div>
+                </div>
+
+                <div class="mf-form-group">
+                    <label class="mf-label">Password</label>
+                    <div class="mf-input-wrapper">
+                        <i class="fas fa-lock mf-input-icon"></i>
+                        <input type="password" id="reg-password" class="mf-input" placeholder="Min 6 characters"
+                            required minlength="6">
+                    </div>
+                </div>
+
+                <div class="mf-form-group">
+                    <label class="mf-label">Confirm Password</label>
+                    <div class="mf-input-wrapper">
+                        <i class="fas fa-check-double mf-input-icon"></i>
+                        <input type="password" id="reg-password-confirm" class="mf-input" placeholder="Repeat password"
+                            required minlength="6">
+                    </div>
+                </div>
+
+                <button type="submit" class="mf-btn mf-btn-primary w-100 mt-sm"
+                    style="background-color: var(--accent-success);">
+                    <i class="fas fa-user-plus"></i> Register Profile
+                </button>
+
+                <div class="text-center mt-md border-t pt-md">
+                    <p class="text-sm">Already registered?</p>
+                    <button type="button" class="mf-btn-text w-100 mt-xs" id="toggle-to-login">Back to Login</button>
                 </div>
             </form>
         </div>
     </div>
     <script src="js/ui-components.js"></script>
-    <script src="js/app.js"></script>
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/app.js"></script>
 
 </body>
 

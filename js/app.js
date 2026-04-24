@@ -3,98 +3,146 @@
  * Core application logic, Authentication state, and Zero-Latency SPA routing.
  */
 
+import { auth, db } from "./firebase-config.js";
+import {
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut,
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+import {
+    doc,
+    setDoc,
+    serverTimestamp,
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
 document.addEventListener("DOMContentLoaded", () => {
     initAuthEngine();
     initRouter();
 });
 
-// MODIFIED CODE: Real Firebase Authentication Logic
 function initAuthEngine() {
-    const authForm = document.getElementById("auth-form");
-    const btnLogin = document.getElementById("btn-login");
-    const btnRegister = document.getElementById("btn-register");
-
-    // Handle Login
-    authForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const email = document.getElementById("auth-email").value;
-        const password = document.getElementById("auth-password").value;
-
-        auth.signInWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                console.log("System: Login Successful");
-                toggleAppShell(true);
-            })
-            .catch((error) => {
-                alert("Clinical Error: " + error.message);
-            });
-    });
-
-    // Handle Registration (Creating Clinical Profile)
-    btnRegister.addEventListener("click", () => {
-        const email = document.getElementById("auth-email").value;
-        const password = document.getElementById("auth-password").value;
-
-        if (!email || !password) return alert("Credentials required.");
-
-        auth.createUserWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                // Initialize user document in Firestore
-                const user = userCredential.user;
-                db.collection("users").doc(user.uid).set({
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    email: email,
-                });
-                toggleAppShell(true);
-            })
-            .catch((error) => {
-                alert("Registration Failed: " + error.message);
-            });
-    });
-}
-
-function toggleAppShell(isAuthenticated) {
     const viewAuth = document.getElementById("view-auth");
     const coreApp = document.getElementById("core-app");
     const coreNav = document.getElementById("core-nav");
 
-    if (isAuthenticated) {
-        viewAuth.style.display = "none";
-        coreApp.classList.remove("app-shell-hidden");
-        coreNav.classList.remove("app-shell-hidden");
+    const sectionLogin = document.getElementById("section-login");
+    const sectionRegister = document.getElementById("section-register");
+
+    const formLogin = document.getElementById("form-login");
+    const formRegister = document.getElementById("form-register");
+    const btnLogout = document.getElementById("btn-logout");
+
+    // 1. Session Persistence Observer (Triggers automatically on load and auth state change)
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            console.log("System: Session Restored. UID:", user.uid);
+            // Hide Auth, Show App
+            viewAuth.style.display = "none";
+            coreApp.classList.remove("app-shell-hidden");
+            coreNav.classList.remove("app-shell-hidden");
+        } else {
+            console.log("System: No Active Session.");
+            // Hide App, Show Auth
+            viewAuth.style.display = "flex";
+            coreApp.classList.add("app-shell-hidden");
+            coreNav.classList.add("app-shell-hidden");
+        }
+    });
+
+    // 2. UI Toggles
+    document
+        .getElementById("toggle-to-register")
+        .addEventListener("click", () => {
+            sectionLogin.classList.add("app-shell-hidden");
+            sectionRegister.classList.remove("app-shell-hidden");
+        });
+
+    document.getElementById("toggle-to-login").addEventListener("click", () => {
+        sectionRegister.classList.add("app-shell-hidden");
+        sectionLogin.classList.remove("app-shell-hidden");
+    });
+
+    // 3. Handle Login
+    formLogin.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const email = document.getElementById("login-email").value.trim();
+        const password = document.getElementById("login-password").value;
+
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            formLogin.reset(); // Clear fields after success
+        } catch (error) {
+            alert("Clinical Error: " + error.message);
+        }
+    });
+
+    // 4. Handle Registration (Creating Clinical Profile)
+    formRegister.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const name = document.getElementById("reg-name").value.trim();
+        const email = document.getElementById("reg-email").value.trim();
+        const password = document.getElementById("reg-password").value;
+        const confirmPassword = document.getElementById(
+            "reg-password-confirm",
+        ).value;
+
+        // Validation
+        if (password !== confirmPassword) {
+            return alert("Clinical Warning: Passwords do not match.");
+        }
+
+        try {
+            const userCredential = await createUserWithEmailAndPassword(
+                auth,
+                email,
+                password,
+            );
+            const user = userCredential.user;
+
+            // Initialize user document in Firestore (Adding Name)
+            await setDoc(doc(db, "users", user.uid), {
+                fullName: name,
+                email: email,
+                createdAt: serverTimestamp(),
+            });
+
+            formRegister.reset(); // Clear fields after success
+        } catch (error) {
+            alert("Registration Failed: " + error.message);
+        }
+    });
+
+    // 5. Handle Logout
+    if (btnLogout) {
+        btnLogout.addEventListener("click", async () => {
+            try {
+                await signOut(auth);
+                // onAuthStateChanged will handle the UI switch automatically
+            } catch (error) {
+                alert("Logout Failed: " + error.message);
+            }
+        });
     }
 }
 
 function initRouter() {
     const navItems = document.querySelectorAll(".nav-item");
-    const views = document.querySelectorAll(".app-view:not(#view-auth)"); // Exclude Auth from standard routing
+    const views = document.querySelectorAll(".app-view:not(#view-auth)");
     const pageTitle = document.getElementById("page-title");
 
     navItems.forEach((item) => {
         item.addEventListener("click", (e) => {
             e.preventDefault();
-
-            // 1. Remove active state from all nav items
             navItems.forEach((nav) => nav.classList.remove("active"));
-
-            // 2. Hide all core views entirely
-            views.forEach((view) => {
-                view.style.display = "none";
-            });
-
-            // 3. Set the clicked nav item to active
+            views.forEach((view) => (view.style.display = "none"));
             item.classList.add("active");
 
-            // 4. Show the targeted view (Zero-Latency display toggle)
             const targetId = item.getAttribute("data-target");
             const targetView = document.getElementById(targetId);
-            if (targetView) {
-                targetView.style.display = "block";
-            }
+            if (targetView) targetView.style.display = "block";
 
-            // 5. Update the Top Header Title dynamically
-            const titleText = item.querySelector("span").innerText;
-            pageTitle.innerText = titleText;
+            pageTitle.innerText = item.querySelector("span").innerText;
         });
     });
 }
