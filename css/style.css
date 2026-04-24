@@ -159,7 +159,7 @@ body {
     position: relative;
 }
 .mf-card:hover {
-    transform: translateY(-3px);
+    /* transform: translateY(-3px); */
     box-shadow: var(--shadow-lg);
 }
 .mf-card.glass {
@@ -289,6 +289,21 @@ p {
 }
 .mf-btn-text:hover {
     color: #57cfff;
+}
+
+/* MODIFIED: Fix Add Set row button appearance inside exercise cards */
+.sets-container + .mf-btn-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: var(--space-xs) 0;
+    border-top: var(--border-glass);
+    margin-top: var(--space-xs);
+    color: var(--accent-primary);
+    font-size: 0.875rem;
+    font-weight: 700;
+    min-height: 40px;
 }
 
 /* Small Button (for logs) */
