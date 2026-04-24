@@ -79,10 +79,71 @@ body {
 }
 
 /* --- Core Layout & Containers --- */
+
+/* Mobile First (Default) */
 .app-shell {
-    max-width: 480px;
+    max-width: 100%;
     margin: 0 auto;
-    padding-bottom: 80px; /* Space for Bottom Nav */
+    padding-bottom: 80px;
+    padding-left: var(--space-sm);
+    padding-right: var(--space-sm);
+}
+
+/* Tablet & Desktop (Screens wider than 768px) */
+@media (min-width: 768px) {
+    body {
+        padding: 0;
+        display: flex;
+        justify-content: center;
+    }
+
+    .app-shell {
+        max-width: 1200px; /* Wider desktop view */
+        margin-left: 260px; /* Space for the Sidebar */
+        padding-top: var(--space-lg);
+        padding-bottom: var(--space-lg);
+        width: 100%;
+    }
+
+    /* Change Bottom Nav to Sidebar on Desktop */
+    .app-nav {
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 260px;
+        height: 100vh !important;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding: var(--space-lg) var(--space-md);
+        gap: var(--space-md);
+        border-top: none;
+        border-right: var(--border-glass);
+    }
+
+    .nav-item {
+        width: 100%;
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 15px;
+        padding: 12px 20px;
+        border-radius: var(--radius-md);
+        font-size: 1rem;
+    }
+
+    .nav-item i {
+        font-size: 1.2rem;
+        width: 24px;
+    }
+
+    .nav-item.active {
+        background-color: var(--accent-primary-glow);
+        border: 1px solid rgba(56, 189, 248, 0.1);
+    }
+
+    /* Adjust Header for Desktop */
+    header.framework-section {
+        margin-bottom: var(--space-lg);
+    }
 }
 .framework-section {
     margin-bottom: var(--space-lg);
@@ -446,6 +507,7 @@ p {
 }
 .nav-item.active {
     color: var(--accent-primary);
+    text-shadow: 0 0 8px var(--accent-primary-glow);
 }
 .nav-item i {
     font-size: 1.4rem;
@@ -588,6 +650,36 @@ p {
 }
 .font-black {
     font-weight: 800;
+}
+
+/* NEW CONTENT HERE: Auth Utilities & Spacing */
+.w-100 {
+    width: 100%;
+}
+.h-100vh {
+    height: 100vh;
+}
+.mb-xs {
+    margin-bottom: var(--space-xs);
+}
+.mb-sm {
+    margin-bottom: var(--space-sm);
+}
+.mb-md {
+    margin-bottom: var(--space-md);
+}
+.mb-lg {
+    margin-bottom: var(--space-lg);
+}
+.max-w-400 {
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Hide core app elements by default until authenticated */
+.app-shell-hidden {
+    display: none !important;
 }
 
 /* --- Specific Utilities --- */

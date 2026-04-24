@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MetricFit</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="app-shell app-shell-hidden">
+
+        <header class="framework-section py-md border-b">
+            <div class="flex align-center justify-between">
+                <h1 id="page-title">Workout</h1>
+                <span class="mf-badge primary"><i class="fas fa-wifi"></i> Online</span>
+            </div>
+        </header>
+
+        <main id="main-content" class="mt-md">
+
+            <div id="view-workout" class="app-view" style="display: block;">
+                <h2>Active Session</h2>
+                <p class="text-muted">The mechanical logging interface will be built here.</p>
+            </div>
+
+            <div id="view-nutrition" class="app-view" style="display: none;">
+                <h2>Dynamic Router</h2>
+                <p class="text-muted">The caloric deficit and macros engine will be built here.</p>
+            </div>
+
+            <div id="view-progress" class="app-view" style="display: none;">
+                <h2>Progress Audits</h2>
+                <p class="text-muted">Visual charts and ghost-overlay camera will be built here.</p>
+            </div>
+
+            <div id="view-profile" class="app-view" style="display: none;">
+                <h2>Clinical Profile</h2>
+                <p class="text-muted">Biometric data and target configuration will be built here.</p>
+            </div>
+
+        </main>
+    </div>
+
+    <nav class="app-nav app-shell-hidden">
+        <a href="#workout" class="nav-item active" data-target="view-workout">
+            <i class="fas fa-dumbbell"></i>
+            <span>Workout</span>
+        </a>
+        <a href="#nutrition" class="nav-item" data-target="view-nutrition">
+            <i class="fas fa-apple-whole"></i>
+            <span>Nutrition</span>
+        </a>
+        <a href="#progress" class="nav-item" data-target="view-progress">
+            <i class="fas fa-chart-line"></i>
+            <span>Progress</span>
+        </a>
+        <a href="#profile" class="nav-item" data-target="view-profile">
+            <i class="fas fa-user-gear"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+    <div id="view-auth" class="app-view flex flex-col align-center justify-center h-100vh px-md">
+
+        <div class="text-center mb-lg">
+            <i class="fas fa-chart-simple text-primary text-xl mb-sm"></i>
+            <h1>MetricFit</h1>
+            <p class="text-muted">Clinical-Grade Training & Nutrition Tracker</p>
+        </div>
+
+        <div class="mf-card w-100 max-w-400">
+            <form id="auth-form">
+                <div class="mf-form-group">
+                    <label class="mf-label">Email Address</label>
+                    <div class="mf-input-wrapper">
+                        <i class="fas fa-envelope mf-input-icon"></i>
+                        <input type="email" id="auth-email" class="mf-input" placeholder="user@example.com" required>
+                    </div>
+                </div>
+
+                <div class="mf-form-group">
+                    <label class="mf-label">Password</label>
+                    <div class="mf-input-wrapper">
+                        <i class="fas fa-lock mf-input-icon"></i>
+                        <input type="password" id="auth-password" class="mf-input" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="mf-btn mf-btn-primary w-100 mt-sm" id="btn-login">
+                    <i class="fas fa-right-to-bracket"></i> Authenticate
+                </button>
+
+                <div class="text-center mt-md border-t pt-md">
+                    <p class="text-sm">Don't have an account?</p>
+                    <button type="button" class="mf-btn-text w-100 mt-xs" id="btn-register">Create Clinical
+                        Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="js/ui-components.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>
