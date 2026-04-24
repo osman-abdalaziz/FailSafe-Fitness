@@ -75,7 +75,34 @@ body {
     font-family: var(--font-main);
     line-height: 1.5;
     padding: var(--space-lg) var(--space-sm);
+    min-height: 100vh;
     overflow-x: hidden;
+}
+
+img,
+video,
+canvas,
+svg {
+    max-width: 100%;
+    height: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    min-width: 0;
+    word-break: break-word;
+}
+
+#main-content,
+.app-view,
+.mf-card,
+.mf-modal-content {
+    min-width: 0;
 }
 
 /* --- Core Layout & Containers --- */
@@ -93,16 +120,17 @@ body {
 @media (min-width: 768px) {
     body {
         padding: 0;
-        display: flex;
-        justify-content: center;
+        display: block;
     }
 
     .app-shell {
-        max-width: 1200px; /* Wider desktop view */
-        margin-left: 260px; /* Space for the Sidebar */
+        max-width: none;
+        margin-left: 284px; /* Extra breathing room from the Sidebar */
         padding-top: var(--space-lg);
         padding-bottom: var(--space-lg);
-        width: 100%;
+        padding-right: var(--space-lg);
+        width: calc(100vw - 284px);
+        min-height: 100vh;
     }
 
     /* Change Bottom Nav to Sidebar on Desktop */
@@ -149,6 +177,97 @@ body {
     margin-bottom: var(--space-lg);
 }
 
+@media (max-width: 767px) {
+    body {
+        padding: var(--space-sm);
+    }
+
+    .app-shell {
+        padding-left: 0;
+        padding-right: 0;
+        padding-bottom: calc(88px + var(--space-lg));
+    }
+
+    .framework-section {
+        margin-bottom: var(--space-md);
+    }
+
+    .framework-section > div,
+    #workout-home > div:first-child,
+    #routine-builder > div:first-child,
+    #active-workout > div:first-child,
+    .mf-modal-content > div:first-child {
+        flex-wrap: wrap;
+        gap: var(--space-sm);
+    }
+
+    .framework-section h1 {
+        font-size: 1.9rem;
+    }
+
+    h2 {
+        font-size: 1.25rem;
+    }
+
+    .mf-card {
+        padding: var(--space-sm);
+        border-radius: var(--radius-md);
+    }
+
+    .mf-btn {
+        max-width: 100%;
+    }
+
+    .max-w-400 {
+        max-width: 100%;
+    }
+
+    #routine-builder input#routine-name-input {
+        flex: 1 1 100%;
+        width: 100%;
+        order: 3;
+    }
+
+    #active-exercises-container {
+        gap: var(--space-sm);
+    }
+
+    #active-exercises-container .mf-card {
+        padding: var(--space-sm);
+    }
+
+    #active-exercises-container table {
+        table-layout: fixed;
+        font-size: 0.82rem;
+    }
+
+    #active-exercises-container th,
+    #active-exercises-container td {
+        padding-left: 2px;
+        padding-right: 2px;
+    }
+
+    #active-exercises-container th:nth-child(1),
+    #active-exercises-container td:nth-child(1) {
+        width: 12% !important;
+    }
+
+    #active-exercises-container th:nth-child(2),
+    #active-exercises-container td:nth-child(2) {
+        width: 38% !important;
+    }
+
+    #active-exercises-container th:nth-child(3),
+    #active-exercises-container td:nth-child(3) {
+        width: 38% !important;
+    }
+
+    #active-exercises-container th:nth-child(4),
+    #active-exercises-container td:nth-child(4) {
+        width: 12% !important;
+    }
+}
+
 /* --- Common Components (The Modern Cards) --- */
 .mf-card {
     background-color: var(--bg-surface);
@@ -176,13 +295,13 @@ body {
 
 /* Accent Border Modifiers */
 .mf-card.border-primary {
-    border-left: 4px solid var(--accent-primary);
+    border-color: rgba(56, 189, 248, 0.35);
 }
 .mf-card.border-success {
-    border-left: 4px solid var(--accent-success);
+    border-color: rgba(74, 222, 128, 0.35);
 }
 .mf-card.border-error {
-    border-left: 4px solid var(--accent-error);
+    border-color: rgba(244, 63, 94, 0.35);
 }
 
 /* Glow Effects */
@@ -291,19 +410,29 @@ p {
     color: #57cfff;
 }
 
-/* MODIFIED: Fix Add Set row button appearance inside exercise cards */
-.sets-container + .mf-btn-text {
+/* MODIFIED: Professional Add Set Button style */
+#form-register .mf-btn-text,
+#form-login .mf-btn-text,
+#active-exercises-container .mf-btn-text {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    padding: var(--space-xs) 0;
-    border-top: var(--border-glass);
-    margin-top: var(--space-xs);
+    padding: var(--space-sm);
+    margin-top: var(--space-sm);
+    background-color: rgba(56, 189, 248, 0.05); /* Subtle primary glow */
+    border: 1px dashed var(--accent-primary-glow) !important;
+    border-radius: var(--radius-md);
     color: var(--accent-primary);
-    font-size: 0.875rem;
+    font-size: 0.9rem;
     font-weight: 700;
-    min-height: 40px;
+    transition: var(--transition-fast);
+    cursor: pointer;
+}
+#form-login .mf-btn-text:hover,
+#form-register .mf-btn-text:hover,
+#active-exercises-container .mf-btn-text:hover {
+    background-color: var(--accent-primary-glow);
 }
 
 /* Small Button (for logs) */
@@ -369,11 +498,23 @@ p {
     background-color: #1a2338;
 }
 
-/* Special Ghost Placeholder styling */
+/* Special Ghost Placeholder styling
 .mf-input.ghost-fill {
     color: var(--text-ghost);
     font-weight: 700;
     font-style: italic;
+} */
+
+/* MODIFIED: Placeholder only is ghost, input text is white */
+.mf-input::placeholder {
+    color: var(--text-ghost);
+    font-weight: 700;
+    font-style: italic;
+    opacity: 1;
+}
+/* Ensure typed text is always standard main color */
+.mf-input {
+    color: var(--text-main);
 }
 
 /* Checkbox (for set completion) */
@@ -396,10 +537,11 @@ p {
     background-color: var(--accent-success);
     border-color: var(--accent-success);
 }
+/* FIX: Checklist icon rendering */
 .mf-checkbox:checked::after {
     content: "\f00c";
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
+    font-family: "Font Awesome 7 Free"; /* Match the loaded version */
+    font-weight: 900; /* CRITICAL for icons to appear */
     color: var(--bg-deep);
     font-size: 1.1rem;
 }
@@ -733,6 +875,7 @@ input[type="number"]::-webkit-outer-spin-button {
     margin: 0;
 }
 input[type="number"] {
+    appearance: textfield;
     -moz-appearance: textfield; /* Firefox */
 }
 
@@ -805,6 +948,84 @@ input[type="number"] {
 .mf-num-btn-hz:active {
     background: var(--accent-primary);
     color: var(--bg-deep);
+}
+
+/* Mobile optimization for workout number inputs */
+@media (max-width: 767px) {
+    .mf-num-central {
+        border-radius: var(--radius-sm);
+    }
+
+    .mf-num-central .mf-input {
+        padding: 10px 4px;
+        font-size: 0.9rem;
+        min-height: 40px;
+    }
+
+    /* Remove custom increment/decrement controls on mobile */
+    .mf-num-central .mf-num-btn-hz {
+        display: none;
+    }
+}
+
+/* Rest Box layout and positioning */
+#rest-timer-overlay {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(70px + var(--space-sm));
+    width: calc(100% - (var(--space-sm) * 2));
+    max-width: 640px;
+    z-index: 950;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#rest-timer-overlay .rest-box-progress-track {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+#rest-timer-overlay #rest-progress-fill {
+    width: 100%;
+    height: 100%;
+    background: var(--accent-primary);
+    transition: width 1s linear;
+}
+
+#rest-timer-overlay .rest-box-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    padding: var(--space-sm);
+}
+
+#rest-timer-overlay .rest-box-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+#rest-timer-overlay .rest-box-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-left: auto;
+}
+
+@media (min-width: 768px) {
+    #rest-timer-overlay {
+        left: calc(260px + var(--space-md));
+        right: var(--space-md);
+        transform: none;
+        width: auto;
+        max-width: none;
+        bottom: var(--space-md);
+    }
 }
 
 /* // NEW CONTENT HERE: Modals, Lists & Utility Spacing */

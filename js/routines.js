@@ -142,7 +142,7 @@ async function fetchMyRoutines(uid) {
         routines.forEach((routine) => {
             const card = document.createElement("div");
             card.className =
-                "mf-card border-success p-sm flex justify-between align-center mb-sm";
+                "mf-card p-sm flex justify-between align-center mb-sm";
             card.innerHTML = `
                 <div>
                     <h3 style="font-size: 1.1rem;">${routine.name}</h3>
@@ -228,8 +228,6 @@ function renderCatalogDOM(exercises) {
             position: sticky;
             bottom: 0;
             padding: var(--space-sm) 0;
-            background: var(--bg-surface);
-            border-top: var(--border-glass);
             margin-top: var(--space-sm);
         `;
         actionBar.innerHTML = `

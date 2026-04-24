@@ -123,6 +123,8 @@ function renderActiveExercises(exercises) {
     exercises.forEach((ex, index) => {
         const card = document.createElement("div");
         card.className = "mf-card mb-md p-sm border-primary";
+
+        // MODIFIED CONTENT: Replace Grid with Table layout
         card.innerHTML = `
             <div class="flex justify-between align-center border-b pb-sm mb-sm">
                 <div>
@@ -132,14 +134,17 @@ function renderActiveExercises(exercises) {
                 <button class="mf-btn-icon mf-btn-sm text-muted" title="Exercise Options"><i class="fas fa-ellipsis-v"></i></button>
             </div>
             
-            <div class="grid gap-xs mb-xs text-center text-sm text-muted font-bold" style="grid-template-columns: 0.5fr 3fr 3fr 1fr;">
-                <span>Set</span>
-                <span>kg</span>
-                <span>Reps</span>
-                <span><i class="fas fa-check"></i></span>
-            </div>
-            
-            <div class="sets-container grid gap-xs" id="sets-container-${index}"></div>
+            <table class="w-100 text-center text-sm" style="border-collapse: collapse;">
+                <thead>
+                    <tr class="text-muted font-bold" style="border-color: rgba(255,255,255,0.05);">
+                        <th style="padding-bottom: 8px; width: 15%;">Set</th>
+                        <th style="padding-bottom: 8px; width: 35%;">kg</th>
+                        <th style="padding-bottom: 8px; width: 35%;">Reps</th>
+                        <th style="padding-bottom: 8px; width: 15%;"><i class="fas fa-check"></i></th>
+                    </tr>
+                </thead>
+                <tbody class="sets-container" id="sets-container-${index}"></tbody>
+            </table>
             
             <button class="mf-btn-text w-100 mt-sm" onclick="addSetRow(${index}, '${ex.id}', ${ex.restTimer || 90})">+ Add Set</button>
         `;
@@ -153,34 +158,45 @@ window.addSetRow = (exerciseIndex, exerciseId, restTimeSeconds) => {
         `sets-container-${exerciseIndex}`,
     );
     const setNumber = container.children.length + 1;
-    const row = document.createElement("div");
-    row.className = "set-row tabular-nums align-center";
-    row.style.gridTemplateColumns = "0.5fr 3fr 3fr 1fr";
+
+    // MODIFIED LINE: Use <tr> instead of <div> for table row
+    const row = document.createElement("tr");
+    row.className = "tabular-nums";
+    row.style.borderColor = "rgba(255,255,255,0.03)";
 
     // Inject Real Ghost Data
     const ghostWeight = historicalStates[exerciseId]?.last_used_weight || "";
     const ghostReps = historicalStates[exerciseId]?.last_reps || "";
 
+    // MODIFIED CONTENT: Used <td> and Removed max-width: 120px to allow full expansion
     row.innerHTML = `
-        <span class="text-muted font-bold text-center">${setNumber}</span>
-        <div class="mf-num-central mx-auto w-100" style="max-width: 120px;">
-            <button class="mf-num-btn-hz" data-action="decrement"><i class="fas fa-minus"></i></button>
-            <input type="number" class="mf-input tabular-nums font-bold px-0 text-center weight-input ${ghostWeight ? "ghost-fill" : ""}" placeholder="${ghostWeight || "0"}" step="2.5" min="0">
-            <button class="mf-num-btn-hz" data-action="increment"><i class="fas fa-plus"></i></button>
-        </div>
-        <div class="mf-num-central mx-auto w-100" style="max-width: 120px;">
-            <button class="mf-num-btn-hz" data-action="decrement"><i class="fas fa-minus"></i></button>
-            <input type="number" class="mf-input tabular-nums font-bold px-0 text-center reps-input ${ghostReps ? "ghost-fill" : ""}" placeholder="${ghostReps || "0"}" step="1" min="0">
-            <button class="mf-num-btn-hz" data-action="increment"><i class="fas fa-plus"></i></button>
-        </div>
-        <div class="flex justify-center">
-            <input type="checkbox" class="mf-checkbox set-checkbox">
-        </div>
+        <td class="text-muted font-bold text-center" style="vertical-align: middle;">${setNumber}</td>
+        <td style="padding: 6px 4px;">
+            <div class="mf-num-central mx-auto w-100">
+                <button class="mf-num-btn-hz" data-action="decrement"><i class="fas fa-minus"></i></button>
+                <input type="number" class="mf-input tabular-nums font-bold px-0 text-center weight-input ${ghostWeight ? "ghost-fill" : ""}" placeholder="${ghostWeight || "0"}" step="2.5" min="0">
+                <button class="mf-num-btn-hz" data-action="increment"><i class="fas fa-plus"></i></button>
+            </div>
+        </td>
+        <td style="padding: 6px 4px;">
+            <div class="mf-num-central mx-auto w-100">
+                <button class="mf-num-btn-hz" data-action="decrement"><i class="fas fa-minus"></i></button>
+                <input type="number" class="mf-input tabular-nums font-bold px-0 text-center reps-input ${ghostReps ? "ghost-fill" : ""}" placeholder="${ghostReps || "0"}" step="1" min="0">
+                <button class="mf-num-btn-hz" data-action="increment"><i class="fas fa-plus"></i></button>
+            </div>
+        </td>
+        <td style="vertical-align: middle;">
+            <div class="flex justify-center">
+                <input type="checkbox" class="mf-checkbox set-checkbox">
+            </div>
+        </td>
     `;
 
+    // ... (Keep the rest of the function for checkbox logic exactly as it is)
     const checkbox = row.querySelector(".set-checkbox");
     const weightInput = row.querySelector(".weight-input");
     const repsInput = row.querySelector(".reps-input");
+    // ...
 
     checkbox.addEventListener("change", (e) => {
         if (e.target.checked) {
@@ -239,22 +255,43 @@ async function compileAndSaveSession(btnFinish, activeView, homeView) {
 
     let totalSessionVolume = 0;
 
+    // MODIFIED CONTENT: Bulletproof compilation logic targeting <tr> directly
     currentExercises.forEach((ex, index) => {
         const container = document.getElementById(`sets-container-${index}`);
-        const rows = container.querySelectorAll(".set-row");
+        if (!container) return; // Safety check
+
+        // Select 'tr' directly to completely avoid class name bugs
+        const rows = container.querySelectorAll("tr");
         const validSets = [];
         let exerciseVolume = 0;
         let currentBestVolume = historicalStates[ex.id]?.best_volume || 0;
 
         rows.forEach((row, setIdx) => {
-            if (row.querySelector(".set-checkbox").checked) {
-                const weight =
-                    parseFloat(row.querySelector(".weight-input").value) || 0;
-                const reps =
-                    parseInt(row.querySelector(".reps-input").value) || 0;
-                const volume = weight * reps;
+            const checkbox = row.querySelector(".set-checkbox");
+            const weightInput = row.querySelector(".weight-input");
+            const repsInput = row.querySelector(".reps-input");
 
-                // PR Logic Engine
+            if (!checkbox || !weightInput || !repsInput) return; // Ignore malformed rows
+
+            const isChecked = checkbox.checked;
+            let weightVal = weightInput.value;
+            let repsVal = repsInput.value;
+
+            // Strict Ghost Auto-Fill at compile time
+            if (isChecked) {
+                if (!weightVal || weightVal === "")
+                    weightVal = weightInput.placeholder;
+                if (!repsVal || repsVal === "") repsVal = repsInput.placeholder;
+            }
+
+            const weight = parseFloat(weightVal) || 0;
+            const reps = parseInt(repsVal) || 0;
+
+            // A set is valid if explicitly checked OR if user typed numbers but forgot to check
+            const isValid = isChecked || (weight > 0 && reps > 0);
+
+            if (isValid) {
+                const volume = weight * reps;
                 const isPR = volume > currentBestVolume;
                 if (isPR) currentBestVolume = volume;
 
@@ -279,7 +316,7 @@ async function compileAndSaveSession(btnFinish, activeView, homeView) {
                 muscle: ex.muscle,
                 total_volume: exerciseVolume,
                 sets: validSets,
-                new_best_volume: currentBestVolume, // to update state later
+                new_best_volume: currentBestVolume,
             });
         }
     });
@@ -355,17 +392,25 @@ function stopSessionTimer() {
 function startRestTimer(seconds) {
     const overlay = document.getElementById("rest-timer-overlay");
     const display = document.getElementById("rest-timer-display");
+    const progressFill = document.getElementById("rest-progress-fill"); // NEW
     if (!overlay || !display) return;
 
     stopRestTimer(); // Clear existing
     overlay.classList.remove("app-shell-hidden");
 
     let timeLeft = seconds;
+    const totalSeconds = seconds;
 
     const updateDisplay = () => {
         const m = Math.floor(timeLeft / 60);
         const s = timeLeft % 60;
         display.innerText = `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+
+        // Animate the Progress Bar
+        if (progressFill) {
+            const pct = (timeLeft / totalSeconds) * 100;
+            progressFill.style.width = `${pct}%`;
+        }
     };
     updateDisplay();
 
@@ -374,7 +419,8 @@ function startRestTimer(seconds) {
         updateDisplay();
         if (timeLeft <= 0) {
             stopRestTimer();
-            // Optional: Play a sound here
+            // Vibrate device if supported to alert user
+            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
         }
     }, 1000);
 }

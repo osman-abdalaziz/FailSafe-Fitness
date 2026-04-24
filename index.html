@@ -76,17 +76,26 @@
                     <button class="mf-btn mf-btn-outline w-100 text-error mt-md" id="btn-discard-workout">
                         <i class="fas fa-trash"></i> Discard Session
                     </button>
-                    <div id="rest-timer-overlay"
-                        class="mf-card glass border-primary p-sm mb-md flex justify-between align-center app-shell-hidden"
-                        style="position: sticky; bottom: 80px; z-index: 100;">
-                        <div>
-                            <h4 class="text-primary mb-0">Rest Timer</h4>
-                            <p class="text-xs text-muted mb-0">Recover before next set</p>
+                    <div id="rest-timer-overlay" class="mf-card glass border-primary app-shell-hidden">
+                        <div class="rest-box-progress-track">
+                            <div id="rest-progress-fill"></div>
                         </div>
-                        <div class="flex align-center gap-sm">
-                            <span id="rest-timer-display" class="tabular-nums text-xl font-black text-glow">01:30</span>
-                            <button class="mf-btn-icon mf-btn-sm text-error" id="btn-skip-rest"><i
-                                    class="fas fa-forward"></i></button>
+                        <div class="rest-box-content">
+                            <div class="rest-box-meta">
+                                <i class="fas fa-stopwatch text-primary" style="font-size: 1.5rem;"></i>
+                                <div>
+                                    <h4 class="text-primary mb-0" style="font-size: 0.9rem; letter-spacing: 0;">Resting
+                                    </h4>
+                                    <p class="text-xs text-muted mb-0">Next set approaching</p>
+                                </div>
+                            </div>
+                            <div class="rest-box-actions">
+                                <span id="rest-timer-display" class="tabular-nums text-2xl font-black text-glow"
+                                    style="letter-spacing: 1px;">01:30</span>
+                                <button class="mf-btn-icon mf-btn-sm text-error ml-xs" id="btn-skip-rest"
+                                    style="background: rgba(244, 63, 94, 0.1); border-color: transparent;"><i
+                                        class="fas fa-forward"></i></button>
+                            </div>
                         </div>
                     </div>
                 </div>
