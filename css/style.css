@@ -1,6 +1,8 @@
 /* --- MetricFit Advanced Design System & Framework --- */
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+/* @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"); */
+/* @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"); */
+@import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap");
 
 :root {
     /* Richer Color Palette (OLED Optimized Dark Mode) */
@@ -21,7 +23,7 @@
     --accent-warning: #fbbf24; /* Amber - Caution (e.g., Plateau) */
 
     /* Typography */
-    --font-main: "Inter", -apple-system, system-ui, sans-serif;
+    --font-main: "Lato", sans-serif;
     --text-main: #f1f5f9; /* Slate 100 */
     --text-muted: #94a3b8; /* Slate 400 */
     --text-ghost: rgba(148, 163, 184, 0.3); /* Placeholder numbers */
@@ -611,4 +613,89 @@ p {
 .pos-abs-right {
     position: absolute;
     right: 16px;
+}
+
+/* =========================================
+   NEW CONTENT HERE: Advanced Number Inputs
+   ========================================= */
+
+/* 1. Hide Default Browser Arrows */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"] {
+    -moz-appearance: textfield; /* Firefox */
+}
+
+/* 2. Style 1: Standard Input (Vertical Arrows on Right) */
+.mf-num-standard {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.mf-num-standard .mf-input {
+    padding-right: 40px; /* Make space for arrows */
+}
+.mf-num-controls-vert {
+    position: absolute;
+    right: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.mf-num-btn-vert {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 2px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-fast);
+}
+.mf-num-btn-vert:hover,
+.mf-num-btn-vert:active {
+    color: var(--accent-primary);
+}
+
+/* 3. Style 2: Central Input (+ / - Buttons) */
+.mf-num-central {
+    display: flex;
+    align-items: center;
+    background-color: var(--bg-surface);
+    border: var(--border-glass);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: var(--transition-fast);
+}
+.mf-num-central:focus-within {
+    border-color: var(--accent-primary);
+    box-shadow: var(--shadow-glow);
+}
+.mf-num-central .mf-input {
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    text-align: center;
+    padding: 14px 4px;
+    box-shadow: none !important;
+}
+.mf-num-btn-hz {
+    padding: 18px;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-main);
+    border: none;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+.mf-num-btn-hz:hover {
+    background: var(--accent-primary-glow);
+    color: var(--accent-primary);
+}
+.mf-num-btn-hz:active {
+    background: var(--accent-primary);
+    color: var(--bg-deep);
 }

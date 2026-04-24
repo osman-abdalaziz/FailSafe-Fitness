@@ -70,7 +70,7 @@
                     <button class="mf-btn mf-btn-outline">
                         <i class="fas fa-history"></i> History
                     </button>
-                    <button class="mf-btn-text">Cancel Action</button>
+                    <button class="mf-btn mf-btn-outline">Cancel Action</button>
                 </div>
 
                 <div class="flex gap-sm align-center">
@@ -110,9 +110,15 @@
 
                 <div class="mf-form-group">
                     <label class="mf-label">Daily Body Weight (kg)</label>
-                    <div class="mf-input-wrapper">
+                    <div class="mf-input-wrapper mf-num-standard">
                         <i class="fas fa-weight-scale mf-input-icon"></i>
-                        <input type="number" class="mf-input" placeholder="85.5">
+                        <input type="number" class="mf-input" placeholder="85.5" step="0.5" min="0">
+                        <div class="mf-num-controls-vert">
+                            <button class="mf-num-btn-vert" data-action="increment"><i
+                                    class="fas fa-chevron-up"></i></button>
+                            <button class="mf-num-btn-vert" data-action="decrement"><i
+                                    class="fas fa-chevron-down"></i></button>
+                        </div>
                     </div>
                 </div>
 
@@ -175,8 +181,19 @@
                     <span class="mf-label text-center">Done</span>
                 </div>
                 <div class="set-row tabular-nums">
-                    <input type="number" class="mf-input mf-btn-sm text-center px-0" placeholder="105.0">
-                    <input type="number" class="mf-input mf-btn-sm text-center px-0" placeholder="8">
+                    <div class="mf-num-central">
+                        <button class="mf-num-btn-hz" data-action="decrement"><i class="fas fa-minus"></i></button>
+                        <input type="number" class="mf-input tabular-nums font-bold" placeholder="105.0" step="2.5"
+                            min="0">
+                        <button class="mf-num-btn-hz" data-action="increment"><i class="fas fa-plus"></i></button>
+                    </div>
+
+                    <div class="mf-num-central">
+                        <button class="mf-num-btn-hz" data-action="decrement"><i class="fas fa-minus"></i></button>
+                        <input type="number" class="mf-input tabular-nums font-bold" placeholder="8" step="1" min="0">
+                        <button class="mf-num-btn-hz" data-action="increment"><i class="fas fa-plus"></i></button>
+                    </div>
+
                     <div class="flex justify-center">
                         <input type="checkbox" class="mf-checkbox">
                     </div>
@@ -233,7 +250,7 @@
             <span>Profile</span>
         </a>
     </nav>
-
+    <script src="js/ui-components.js"></script>
 </body>
 
 </html>
