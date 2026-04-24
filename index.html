@@ -27,8 +27,102 @@
         <main id="main-content" class="mt-md">
 
             <div id="view-workout" class="app-view" style="display: block;">
-                <h2>Active Session</h2>
-                <p class="text-muted">The mechanical logging interface will be built here.</p>
+
+                <div id="workout-home">
+                    <div class="flex justify-between align-center mb-md">
+                        <h2>My Routines</h2>
+                        <button class="mf-btn mf-btn-primary mf-btn-sm" id="btn-create-routine">
+                            <i class="fas fa-plus"></i> New Routine
+                        </button>
+                    </div>
+                    <div id="routines-list" class="grid gap-sm">
+                        <p class="text-muted text-center py-md" id="empty-routines-msg">No routines found. Build your
+                            first
+                            template.</p>
+                    </div>
+                </div>
+
+                <div id="routine-builder" class="app-shell-hidden">
+                    <div class="flex justify-between align-center mb-md border-b pb-sm">
+                        <button class="mf-btn-icon" id="btn-back-routines"><i class="fas fa-arrow-left"></i></button>
+                        <input type="text" id="routine-name-input"
+                            class="mf-input text-left font-bold border-transparent flex-1" placeholder="Routine Name"
+                            style="background:transparent; font-size:1.2rem; box-shadow:none;">
+                        <button class="mf-btn-text text-success font-bold" id="btn-save-routine">Save</button>
+                    </div>
+
+                    <div id="builder-exercise-list" class="grid gap-md mb-md">
+                    </div>
+
+                    <button class="mf-btn mf-btn-outline w-full text-primary" id="btn-open-catalog">
+                        <i class="fas fa-magnifying-glass"></i> Add Exercise
+                    </button>
+                </div>
+
+                <div id="active-workout" class="w-100 app-shell-hidden">
+                    <div class="flex justify-between align-center mb-md border-b pb-sm">
+                        <div>
+                            <h2 class="text-primary mb-0" id="active-routine-name">Workout</h2>
+                            <p class="text-sm text-muted tabular-nums font-bold" id="global-timer">00:00:00</p>
+                        </div>
+                        <button class="mf-btn mf-btn-primary mf-btn-sm bg-success" id="btn-finish-workout">
+                            <i class="fas fa-check"></i> Finish
+                        </button>
+                    </div>
+
+                    <div id="active-exercises-container" class="grid gap-md mb-lg">
+                    </div>
+
+                    <button class="mf-btn mf-btn-outline w-100 text-error mt-md" id="btn-discard-workout">
+                        <i class="fas fa-trash"></i> Discard Session
+                    </button>
+                    <div id="rest-timer-overlay"
+                        class="mf-card glass border-primary p-sm mb-md flex justify-between align-center app-shell-hidden"
+                        style="position: sticky; bottom: 80px; z-index: 100;">
+                        <div>
+                            <h4 class="text-primary mb-0">Rest Timer</h4>
+                            <p class="text-xs text-muted mb-0">Recover before next set</p>
+                        </div>
+                        <div class="flex align-center gap-sm">
+                            <span id="rest-timer-display" class="tabular-nums text-xl font-black text-glow">01:30</span>
+                            <button class="mf-btn-icon mf-btn-sm text-error" id="btn-skip-rest"><i
+                                    class="fas fa-forward"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="exercise-catalog-modal" class="mf-modal app-shell-hidden">
+                <div class="mf-modal-content">
+                    <div class="flex justify-between align-center mb-md">
+                        <h3>Exercise Catalog</h3>
+                        <button class="mf-btn-icon text-error" id="btn-close-catalog"><i
+                                class="fas fa-xmark"></i></button>
+                    </div>
+                    <div class="mf-input-wrapper mb-md">
+                        <i class="fas fa-search mf-input-icon"></i>
+                        <input type="text" id="search-exercise" class="mf-input" placeholder="Search exercises...">
+                    </div>
+                    <div id="catalog-list" class="flex-1 overflow-y-auto grid gap-xs">
+                    </div>
+                </div>
+            </div>
+            <div id="exercise-catalog-modal" class="mf-modal app-shell-hidden">
+                <div class="mf-modal-content">
+                    <div class="flex justify-between align-center mb-md">
+                        <h3>Exercise Catalog</h3>
+                        <button class="mf-btn-icon text-error" id="btn-close-catalog"><i
+                                class="fas fa-xmark"></i></button>
+                    </div>
+                    <div class="mf-input-wrapper mb-md">
+                        <i class="fas fa-search mf-input-icon"></i>
+                        <input type="text" id="search-exercise" class="mf-input"
+                            placeholder="Search mechanics (e.g. Bench Press)...">
+                    </div>
+                    <div id="catalog-list" class="flex-1 overflow-y-auto grid gap-xs">
+                        <p class="text-muted text-center text-sm mt-md">Loading mechanical database...</p>
+                    </div>
+                </div>
             </div>
 
             <div id="view-nutrition" class="app-view" style="display: none;">
@@ -156,7 +250,8 @@
     <script src="js/ui-components.js"></script>
     <script type="module" src="js/firebase-config.js"></script>
     <script type="module" src="js/app.js"></script>
-
+    <script type="module" src="js/routines.js"></script>
+    <script type="module" src="js/workout-engine.js"></script>
 </body>
 
 </html>

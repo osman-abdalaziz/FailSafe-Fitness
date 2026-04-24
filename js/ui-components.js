@@ -7,24 +7,25 @@ document.addEventListener("DOMContentLoaded", () => {
     initCustomNumberInputs();
 });
 
+// MODIFIED CODE: Prevent double-binding on dynamic elements
 function initCustomNumberInputs() {
-    // Select all custom increment/decrement buttons
+    // Select only buttons that haven't been bound yet
     const numButtons = document.querySelectorAll(
-        '[data-action="increment"], [data-action="decrement"]',
+        '[data-action="increment"]:not([data-bound="true"]), [data-action="decrement"]:not([data-bound="true"])',
     );
 
     numButtons.forEach((btn) => {
+        btn.setAttribute("data-bound", "true"); // Mark as bound
+
         let pressTimer;
         let pressInterval;
         const action = btn.getAttribute("data-action");
 
-        // Find the adjacent input field dynamically based on the wrapper structure
         const wrapper = btn.closest(".mf-num-standard, .mf-num-central");
         if (!wrapper) return;
         const input = wrapper.querySelector('input[type="number"]');
         if (!input) return;
 
-        // Retrieve steps and limits dynamically from the HTML attributes
         const step = parseFloat(input.getAttribute("step")) || 1;
         const max = input.hasAttribute("max")
             ? parseFloat(input.getAttribute("max"))
@@ -34,6 +35,9 @@ function initCustomNumberInputs() {
             : -Infinity;
 
         const updateValue = () => {
+            // Check if input is disabled (Locked by Ghost Fill)
+            if (input.disabled) return;
+
             let currentValue = parseFloat(input.value) || 0;
             let newValue = currentValue;
 
@@ -43,18 +47,14 @@ function initCustomNumberInputs() {
                 newValue = currentValue - step;
             }
 
-            // Fix JS floating point issues (e.g., 0.1 + 0.2 = 0.30000000000000004)
             input.value = parseFloat(newValue.toFixed(2));
-
-            // Dispatch event so other scripts know the value changed
             input.dispatchEvent(new Event("input", { bubbles: true }));
         };
 
         const startPress = (e) => {
-            e.preventDefault(); // Prevents text selection / double-tap zoom
-            updateValue(); // Fire once immediately on click
-
-            // Wait 400ms, if still holding, start rapid fire every 75ms
+            if (input.disabled) return;
+            e.preventDefault();
+            updateValue();
             pressTimer = setTimeout(() => {
                 pressInterval = setInterval(updateValue, 75);
             }, 400);
@@ -65,13 +65,14 @@ function initCustomNumberInputs() {
             clearInterval(pressInterval);
         };
 
-        // Attach listeners for both Mouse (Desktop) and Touch (Mobile)
         btn.addEventListener("mousedown", startPress);
         btn.addEventListener("mouseup", endPress);
         btn.addEventListener("mouseleave", endPress);
-
         btn.addEventListener("touchstart", startPress, { passive: false });
         btn.addEventListener("touchend", endPress);
         btn.addEventListener("touchcancel", endPress);
     });
 }
+
+// Expose globally so the Workout Engine can re-trigger it for new rows
+window.initCustomNumberInputs = initCustomNumberInputs;
