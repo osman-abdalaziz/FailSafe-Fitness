@@ -1242,8 +1242,9 @@ input[type="number"] {
     #exd-overlay.exd-overlay--open #exd-panel {
         transform: translateY(0) scale(1);
     }
-    #exd-panel::before {
-        display: none;
+    #exd-panel::before,
+    #exd-drag-handle-zone {
+        display: none !important;
     }
 }
 /* MODIFIED: Remove pseudo-element pill — replaced by #exd-drag-handle-zone */

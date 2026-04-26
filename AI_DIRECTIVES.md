@@ -232,15 +232,33 @@
 
 ---
 
-### Current Project State: GROUND ZERO (Phase 0)
+### GROUND ZERO (Phase 0)
 
 - **Status:** All previous boilerplate `index.html` and `style.css` have been purged.
 - **Current Objective:** Awaiting the Project Manager's return from exams to initiate the first "Real Commit."
-- **Next Action:** Build the Core App Shell (PWA) from absolute scratch based on the final Hybrid Schema.
 
-### Current Project State: Phase 2.1 (UI Framework Integration)
+### Phase 2.1 (UI Framework Integration)
 
 - **Status:** Core CSS Variables (`style.css`), Zero-Inline-Styles HTML framework (`framework.html`), and initial JavaScript UX interactions (`ui-components.js`) have been established.
 - **Key Features Built:** - Custom LTR English PWA Design System.
     - Advanced `Style 1` (Vertical arrows) & `Style 2` (Central +/-) Number Inputs with Long-Press auto-fire mechanics.
-- **Next Action:** Awaiting further UX/UI modifications from the Project Manager or moving to specific page routing (Workout/Nutrition screens).
+
+## Current Project State: Phase 3.5: Advanced UI Mechanics & Analytics (Completed)
+
+**1. Exercise Details Overlay (The Bottom Sheet)**
+
+- Implemented a native-feeling, Instagram-style bottom sheet for exercise details (`#exd-overlay`).
+- Features custom touch-gesture physics (drag-to-dismiss) using `requestAnimationFrame` for extreme smoothness.
+- **Analytics Engine:** Dynamically queries `workouts_log` to build historical performance charts (Max Weight & Total Reps tracking).
+- Isolated DOM injection ensuring the active workout session is untouched while browsing historical data.
+
+**2. Exercise Catalog Overhaul**
+
+- Transitioned to a full-screen takeover modal.
+- Upgraded list UI with thumbnail avatars, unified row-click selection, and hidden checkboxes.
+- Implemented sticky search and sticky bottom action-bars for improved UX on large databases.
+- Centralized modal DOM to prevent duplicate IDs and memory leaks.
+
+**3. Global State & Events**
+
+- Established a decoupled CustomEvent bridge (`metricfitOpenExercise`) allowing any component (Catalog or Active Engine) to trigger the Exercise Details panel safely.
