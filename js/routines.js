@@ -214,113 +214,240 @@ async function loadRealCatalog() {
 }
 
 // MODIFIED: Multi-select + circular images from free-exercise-db CDN
+// function renderCatalogDOM(exercises) {
+//     const catalogList = document.getElementById("catalog-list");
+//     catalogList.innerHTML = "";
+
+//     // NEW CONTENT HERE: Add/update the "Add Selected" action bar
+//     let actionBar = document.getElementById("catalog-action-bar");
+//     if (!actionBar) {
+//         actionBar = document.createElement("div");
+//         actionBar.id = "catalog-action-bar";
+//         actionBar.style.cssText = `
+//             display: none;
+//             position: sticky;
+//             bottom: 0;
+//             padding: var(--space-sm) 0;
+//             margin-top: var(--space-sm);
+//         `;
+//         actionBar.innerHTML = `
+//             <button id="btn-add-selected" class="mf-btn mf-btn-primary w-100">
+//                 <i class="fas fa-plus-circle"></i> Add Selected (<span id="selected-count">0</span>)
+//             </button>
+//         `;
+//         catalogList.parentElement.appendChild(actionBar);
+
+//         document
+//             .getElementById("btn-add-selected")
+//             .addEventListener("click", () => {
+//                 const checked = catalogList.querySelectorAll(
+//                     ".catalog-checkbox:checked",
+//                 );
+//                 checked.forEach((cb) => {
+//                     const ex = globalExerciseDB.find(
+//                         (e) => e.id === cb.dataset.id,
+//                     );
+//                     if (ex) selectedExercises.push(ex);
+//                 });
+//                 renderBuilderList();
+//                 document.getElementById("btn-close-catalog").click();
+//             });
+//     }
+
+//     // Reset action bar
+//     actionBar.style.display = "none";
+//     document.getElementById("selected-count").innerText = "0";
+
+//     const displayList = exercises.slice(0, 50);
+
+//     if (exercises.length === 0) {
+//         catalogList.innerHTML = `<p class="text-muted text-center mt-md">No exercises found matching criteria.</p>`;
+//         return;
+//     }
+
+//     displayList.forEach((ex) => {
+//         // NEW CONTENT HERE: Build CDN image URL from the free-exercise-db repo
+//         // MODIFIED: Correct CDN base path for free-exercise-db images
+//         const imgSrc =
+//             ex.images && ex.images.length > 0
+//                 ? `https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/${ex.images[0]}`
+//                 : null;
+//         const div = document.createElement("div");
+//         div.className = "exercise-item interactive";
+//         div.style.cssText = "gap: 12px;";
+//         div.innerHTML = `
+//             <div style="
+//                 width: 52px; height: 52px; border-radius: 50%;
+//                 overflow: hidden; flex-shrink: 0;
+//                 background: var(--bg-deep);
+//                 border: 2px solid var(--border-glass);
+//                 display: flex; align-items: center; justify-content: center;
+//             ">
+//                 ${
+//                     imgSrc
+//                         ? `<img src="${imgSrc}" alt="${ex.name}"
+//                         style="width:100%; height:100%; object-fit:cover;"
+//                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+//                        <i class="fas fa-dumbbell text-muted" style="display:none; font-size:1.2rem;"></i>`
+//                         : `<i class="fas fa-dumbbell text-muted" style="font-size:1.2rem;"></i>`
+//                 }
+//             </div>
+//             <div class="flex-1">
+//                 <h3 style="font-size: 0.95rem;">${ex.name}</h3>
+//                 <p class="text-xs text-muted">${(ex.muscle || "general").toUpperCase()} · ${ex.equipment || "none"} · ${ex.level || ""}</p>
+//             </div>
+//             <button class="mf-btn-icon" data-info-btn style="width:32px;height:32px;flex-shrink:0;margin-right:4px;"
+//     title="View Details">
+//     <i class="fas fa-circle-info" style="font-size:0.9rem;color:var(--accent-primary);"></i>
+// </button>
+//             <input type="checkbox" class="mf-checkbox catalog-checkbox" data-id="${ex.id}"
+//                 style="width:28px; height:28px; flex-shrink:0;">
+
+//         `;
+
+//         // NEW CONTENT HERE: Clicking the row toggles the checkbox
+//         // div.addEventListener("click", (e) => {
+//         //     if (e.target.classList.contains("catalog-checkbox")) return; // avoid double-toggle
+//         //     const cb = div.querySelector(".catalog-checkbox");
+//         //     cb.checked = !cb.checked;
+//         //     cb.dispatchEvent(new Event("change"));
+//         // });
+//         // MODIFIED: Tap row = open details page, not direct add
+//         div.addEventListener("click", (e) => {
+//             if (e.target.classList.contains("catalog-checkbox")) return;
+//             const cb = div.querySelector(".catalog-checkbox");
+//             cb.checked = !cb.checked;
+//             cb.dispatchEvent(new Event("change"));
+//         });
+
+//         // NEW CONTENT HERE: Long-press or double-tap opens exercise details
+//         div.addEventListener("dblclick", (e) => {
+//             e.stopPropagation();
+//             document.dispatchEvent(
+//                 new CustomEvent("metricfitOpenExercise", { detail: ex }),
+//             );
+//         });
+
+//         // NEW CONTENT HERE: Checkbox change updates the action bar counter
+//         div.querySelector(".catalog-checkbox").addEventListener(
+//             "change",
+//             () => {
+//                 const total = catalogList.querySelectorAll(
+//                     ".catalog-checkbox:checked",
+//                 ).length;
+//                 document.getElementById("selected-count").innerText = total;
+//                 actionBar.style.display = total > 0 ? "block" : "none";
+//             },
+//         );
+
+//         // NEW CONTENT HERE: Info button opens exercise details page
+//         div.querySelector("[data-info-btn]").addEventListener("click", (e) => {
+//             e.stopPropagation();
+//             document.dispatchEvent(
+//                 new CustomEvent("metricfitOpenExercise", { detail: ex }),
+//             );
+//         });
+
+//         catalogList.appendChild(div);
+//     });
+// }
+
+// MODIFIED: Rebuilt catalog UI — selected state, info button, clean rows
 function renderCatalogDOM(exercises) {
     const catalogList = document.getElementById("catalog-list");
     catalogList.innerHTML = "";
 
-    // NEW CONTENT HERE: Add/update the "Add Selected" action bar
+    // Action bar (create once)
     let actionBar = document.getElementById("catalog-action-bar");
     if (!actionBar) {
         actionBar = document.createElement("div");
         actionBar.id = "catalog-action-bar";
-        actionBar.style.cssText = `
-            display: none;
-            position: sticky;
-            bottom: 0;
-            padding: var(--space-sm) 0;
-            margin-top: var(--space-sm);
-        `;
+        actionBar.style.display = "none";
         actionBar.innerHTML = `
             <button id="btn-add-selected" class="mf-btn mf-btn-primary w-100">
-                <i class="fas fa-plus-circle"></i> Add Selected (<span id="selected-count">0</span>)
-            </button>
-        `;
+                <i class="fas fa-plus-circle"></i>
+                Add <span id="selected-count">0</span> Exercise(s)
+            </button>`;
         catalogList.parentElement.appendChild(actionBar);
 
         document
             .getElementById("btn-add-selected")
             .addEventListener("click", () => {
-                const checked = catalogList.querySelectorAll(
-                    ".catalog-checkbox:checked",
-                );
-                checked.forEach((cb) => {
-                    const ex = globalExerciseDB.find(
-                        (e) => e.id === cb.dataset.id,
-                    );
-                    if (ex) selectedExercises.push(ex);
-                });
+                catalogList
+                    .querySelectorAll(".exercise-item.is-selected")
+                    .forEach((row) => {
+                        const ex = globalExerciseDB.find(
+                            (e) => e.id === row.dataset.exId,
+                        );
+                        if (ex) selectedExercises.push(ex);
+                    });
                 renderBuilderList();
                 document.getElementById("btn-close-catalog").click();
             });
     }
 
-    // Reset action bar
+    // Reset
     actionBar.style.display = "none";
-    document.getElementById("selected-count").innerText = "0";
-
-    const displayList = exercises.slice(0, 50);
+    const countEl = document.getElementById("selected-count");
+    if (countEl) countEl.textContent = "0";
 
     if (exercises.length === 0) {
-        catalogList.innerHTML = `<p class="text-muted text-center mt-md">No exercises found matching criteria.</p>`;
+        catalogList.innerHTML = `<p class="text-muted text-center mt-md">No exercises found.</p>`;
         return;
     }
 
-    displayList.forEach((ex) => {
-        // NEW CONTENT HERE: Build CDN image URL from the free-exercise-db repo
-        // MODIFIED: Correct CDN base path for free-exercise-db images
-        const imgSrc =
-            ex.images && ex.images.length > 0
-                ? `https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/${ex.images[0]}`
-                : null;
-        const div = document.createElement("div");
-        div.className = "exercise-item interactive";
-        div.style.cssText = "gap: 12px;";
-        div.innerHTML = `
-            <div style="
-                width: 52px; height: 52px; border-radius: 50%;
-                overflow: hidden; flex-shrink: 0;
-                background: var(--bg-deep);
-                border: 2px solid var(--border-glass);
-                display: flex; align-items: center; justify-content: center;
-            ">
+    exercises.slice(0, 60).forEach((ex) => {
+        // NEW CONTENT HERE: Correct CDN image path
+        const img0 = ex.images?.[0]
+            ? `https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/${ex.images[0]}`
+            : null;
+        const img1 = ex.images?.[1]
+            ? `https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/${ex.images[1]}`
+            : img0;
+
+        const row = document.createElement("div");
+        row.className = "exercise-item";
+        row.dataset.exId = ex.id;
+        row.innerHTML = `
+            <div class="ex-avatar">
                 ${
-                    imgSrc
-                        ? `<img src="${imgSrc}" alt="${ex.name}"
-                        style="width:100%; height:100%; object-fit:cover;"
-                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                       <i class="fas fa-dumbbell text-muted" style="display:none; font-size:1.2rem;"></i>`
-                        : `<i class="fas fa-dumbbell text-muted" style="font-size:1.2rem;"></i>`
+                    img0
+                        ? `<img src="${img0}" alt="" loading="lazy"
+                           onerror="this.style.display='none'">`
+                        : ``
                 }
+                <i class="fas fa-dumbbell ex-avatar-icon"></i>
             </div>
-            <div class="flex-1">
-                <h3 style="font-size: 0.95rem;">${ex.name}</h3>
-                <p class="text-xs text-muted">${(ex.muscle || "general").toUpperCase()} · ${ex.equipment || "none"} · ${ex.level || ""}</p>
+            <div class="ex-info">
+                <h3>${ex.name}</h3>
+                <p>${(ex.muscle || "general").toUpperCase()} · ${ex.equipment || "none"}</p>
             </div>
-            <input type="checkbox" class="mf-checkbox catalog-checkbox" data-id="${ex.id}"
-                style="width:28px; height:28px; flex-shrink:0;">
+            <button class="ex-info-btn" title="View Details" data-info-btn>
+                <i class="fas fa-circle-info"></i>
+            </button>
+            <input type="checkbox" class="catalog-checkbox" aria-label="Select ${ex.name}">
         `;
 
-        // NEW CONTENT HERE: Clicking the row toggles the checkbox
-        div.addEventListener("click", (e) => {
-            if (e.target.classList.contains("catalog-checkbox")) return; // avoid double-toggle
-            const cb = div.querySelector(".catalog-checkbox");
-            cb.checked = !cb.checked;
-            cb.dispatchEvent(new Event("change"));
+        // Toggle selection on row click
+        row.addEventListener("click", (e) => {
+            if (e.target.closest("[data-info-btn]")) return;
+            row.classList.toggle("is-selected");
+            const total = catalogList.querySelectorAll(
+                ".exercise-item.is-selected",
+            ).length;
+            if (countEl) countEl.textContent = total;
+            actionBar.style.display = total > 0 ? "block" : "none";
         });
 
-        // NEW CONTENT HERE: Checkbox change updates the action bar counter
-        div.querySelector(".catalog-checkbox").addEventListener(
-            "change",
-            () => {
-                const total = catalogList.querySelectorAll(
-                    ".catalog-checkbox:checked",
-                ).length;
-                document.getElementById("selected-count").innerText = total;
-                actionBar.style.display = total > 0 ? "block" : "none";
-            },
-        );
+        // Info button → open details overlay (ISSUE 3 integration)
+        row.querySelector("[data-info-btn]").addEventListener("click", (e) => {
+            e.stopPropagation();
+            document.dispatchEvent(
+                new CustomEvent("metricfitOpenExercise", { detail: ex }),
+            );
+        });
 
-        catalogList.appendChild(div);
+        catalogList.appendChild(row);
     });
 }
 
