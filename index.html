@@ -26,6 +26,26 @@
             </div>
         </header>
 
+        <div id="session-sub-nav" class="sub-navbar app-shell-hidden">
+            <div class="sub-nav-item heatmap-trigger" id="btn-open-heatmap" style="cursor: pointer;">
+                <span class="sub-nav-label" style="color: var(--accent-error);">Heatmap</span>
+                <div id="mini-heatmap-container" style="width: 30px; height: 30px; margin-top: 2px;">
+                </div>
+            </div>
+            <div class="sub-nav-item">
+                <span class="sub-nav-label">Duration</span>
+                <span id="header-duration" class="sub-nav-value tabular-nums">00:00</span>
+            </div>
+            <div class="sub-nav-item">
+                <span class="sub-nav-label">Volume</span>
+                <span id="header-volume" class="sub-nav-value tabular-nums">0 kg</span>
+            </div>
+            <div class="sub-nav-item">
+                <span class="sub-nav-label">Sets</span>
+                <span id="header-sets" class="sub-nav-value tabular-nums">0</span>
+            </div>
+        </div>
+
         <main id="main-content" class="mt-md">
 
             <div id="view-workout" class="app-view" style="display: block;">
@@ -62,20 +82,7 @@
                 </div>
 
                 <div id="active-workout" class="w-100 app-shell-hidden">
-                    <div id="session-sub-nav" class="sub-navbar app-shell-hidden">
-                        <div class="sub-nav-item">
-                            <span class="sub-nav-label">Duration</span>
-                            <span id="header-duration" class="sub-nav-value tabular-nums">00:00</span>
-                        </div>
-                        <div class="sub-nav-item">
-                            <span class="sub-nav-label">Volume</span>
-                            <span id="header-volume" class="sub-nav-value tabular-nums">0 kg</span>
-                        </div>
-                        <div class="sub-nav-item">
-                            <span class="sub-nav-label">Sets</span>
-                            <span id="header-sets" class="sub-nav-value tabular-nums">0</span>
-                        </div>
-                    </div>
+
 
                     <div class="flex justify-between align-center mb-md border-b pb-sm"
                         style="justify-content: flex-end;">
@@ -161,6 +168,29 @@
 
                     <div id="catalog-list"></div>
 
+                </div>
+            </div>
+
+            <div id="heatmap-modal" class="mf-modal app-shell-hidden" style="z-index: 4000;">
+                <div class="mf-modal-content">
+                    <div class="flex justify-between align-center p-md border-b">
+                        <h3 class="mb-0">Session Heatmap</h3>
+                        <button class="mf-btn-icon text-error" id="btn-close-heatmap" style="width:36px;height:36px;">
+                            <i class="fas fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto p-md flex flex-col align-center text-center">
+                        <p class="text-xs text-muted mb-md">Muscle intensity is based on accumulated volumetric load.
+                        </p>
+                        <div id="full-heatmap-container" style="width: 100%; max-width: 320px; margin: 0 auto;">
+                        </div>
+                        <div id="heatmap-selected-stats" class="mt-md w-100 p-sm border-glass"
+                            style="border-radius: var(--radius-md); background: rgba(0,0,0,0.2); display: none;">
+                            <h4 id="heatmap-muscle-name" class="text-primary mb-xs">Chest</h4>
+                            <p id="heatmap-muscle-vol" class="text-sm font-bold tabular-nums mb-0">0 kg</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -294,6 +324,7 @@
     <script type="module" src="js/workout-engine.js"></script>
     <!-- NEW CONTENT HERE -->
     <script type="module" src="js/exercise-details.js"></script>
+    <script type="module" src="js/muscle-map.js"></script>
 </body>
 
 </html>

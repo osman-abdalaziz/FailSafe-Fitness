@@ -143,6 +143,17 @@ function initRouter() {
             if (targetView) targetView.style.display = "block";
 
             pageTitle.innerText = item.querySelector("span").innerText;
+
+            // NEW: Hide sub-nav on main view switch
+            if (targetId !== "view-workout") {
+                document
+                    .getElementById("session-sub-nav")
+                    ?.classList.add("app-shell-hidden");
+            } else {
+                document
+                    .getElementById("session-sub-nav")
+                    ?.classList.remove("app-shell-hidden");
+            }
         });
     });
 }

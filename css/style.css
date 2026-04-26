@@ -74,8 +74,12 @@ body {
     color: var(--text-main);
     font-family: var(--font-main);
     line-height: 1.5;
-    padding: var(--space-lg) var(--space-sm);
-    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh; /* Mobile browser height fix */
     overflow-x: hidden;
 }
 
@@ -98,54 +102,53 @@ td {
     word-break: break-word;
 }
 
-#main-content,
 .app-view,
 .mf-card,
 .mf-modal-content {
     min-width: 0;
 }
+#main-content {
+    padding: var(--space-md) var(--space-sm);
+    flex: 1;
+}
 
+#view-auth {
+    flex: 1;
+    overflow-y: auto;
+}
 /* --- Core Layout & Containers --- */
 
 /* Mobile First (Default) */
 .app-shell {
-    max-width: 100%;
-    margin: 0 auto;
-    padding-bottom: 80px;
-    padding-left: var(--space-sm);
-    padding-right: var(--space-sm);
+    flex: 1;
+    overflow-y: auto; /* Scroll inside the shell only */
+    padding: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Tablet & Desktop (Screens wider than 768px) */
 @media (min-width: 768px) {
     body {
-        padding: 0;
-        display: block;
+        flex-direction: row; /* Nav on Left, Shell on Right */
     }
-
-    .app-shell {
-        max-width: none;
-        margin-left: 284px; /* Extra breathing room from the Sidebar */
-        padding-top: var(--space-lg);
-        padding-bottom: var(--space-lg);
-        padding-right: var(--space-lg);
-        width: calc(100vw - 284px);
-        min-height: 100vh;
-    }
-
-    /* Change Bottom Nav to Sidebar on Desktop */
     .app-nav {
-        top: 0;
-        left: 0;
-        bottom: 0;
+        order: -1; /* CRITICAL: Forces Nav to the left side */
         width: 260px;
-        height: 100vh !important;
-        flex-direction: column;
+        height: 100dvh !important;
+        flex-direction: column !important;
         justify-content: flex-start;
-        padding: var(--space-lg) var(--space-md);
-        gap: var(--space-md);
         border-top: none;
-        border-right: var(--border-glass);
+        border-right: 1px solid var(--border-glass);
+        padding: var(--space-lg) var(--space-md);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        z-index: 99999 !important;
+    }
+    #main-content {
+        padding: var(--space-lg);
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
     }
 
     .nav-item {
@@ -178,10 +181,6 @@ td {
 }
 
 @media (max-width: 767px) {
-    body {
-        padding: var(--space-sm);
-    }
-
     .app-shell {
         padding-left: 0;
         padding-right: 0;
@@ -635,22 +634,19 @@ p {
 
 /* App Bottom Navigation Bar */
 .app-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 70px;
-    background-color: var(--bg-surface-glass);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border-top: var(--border-glass);
+    flex-shrink: 0;
+    position: relative; /* No more position: fixed */
+    height: 65px;
+    z-index: 1000;
     display: flex;
+    flex-direction: row;
     justify-content: space-around;
     align-items: center;
-    padding: 0 var(--space-md);
-    z-index: 1000;
-    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.2);
+    background-color: var(--bg-surface-glass);
+    backdrop-filter: blur(15px);
+    border-top: 1px solid var(--border-glass);
 }
+
 .nav-item {
     display: flex;
     flex-direction: column;
@@ -1083,59 +1079,66 @@ input[type="number"] {
     text-align: left;
 }
 
-/* --- Professional Navigation System --- */
-
-/* Main Navbar */
+/* =========================================
+   2. PROFESSIONAL FLAT HEADERS
+   ========================================= */
 .main-top-bar {
-    position: sticky;
-    top: 0;
+    /* position: sticky;
+    top: 0; */
     z-index: 1100;
-    background-color: var(--bg-deep);
-    border-bottom: 1px solid var(--border-glass);
-    padding: var(--space-sm) var(--space-md);
+    background: rgba(11, 17, 32, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    height: 60px; /* Fixed height for docking */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    padding: 0 var(--space-md);
+    flex-direction: row;
 }
 
 .nav-container {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    max-width: 1200px;
-    margin: 0 auto;
+    align-items: center;
+    width: 100%;
 }
 
 .nav-brand {
-    font-size: 1.4rem !important;
-    margin-bottom: 0 !important;
-    background: linear-gradient(90deg, var(--text-main), var(--accent-primary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    font-size: 1.35rem !important;
+    color: #fff;
+    font-weight: 700;
+    margin: 0 !important;
 }
 
 .nav-profile-btn {
     background: transparent;
     border: none;
     color: var(--text-muted);
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     cursor: pointer;
     transition: var(--transition-fast);
+    display: flex;
+    align-items: center;
 }
-
 .nav-profile-btn:hover {
     color: var(--accent-primary);
 }
 
-/* Sub-Navbar (Flat, Professional, No Rounded Corners) */
 .sub-navbar {
     position: sticky;
-    top: 60px; /* تحت الهيدر الأساسي تماماً */
+    top: 0; /* Docks seamlessly under main-top-bar */
     z-index: 1050;
     background-color: var(--bg-surface-glass);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
     display: flex;
     justify-content: space-around;
-    border-bottom: 1px solid var(--accent-primary-glow);
     padding: 10px 0;
+    /* border-bottom: 1px solid rgba(56, 189, 248, 0.15); */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
 }
 
 .sub-nav-item {
@@ -1154,7 +1157,7 @@ input[type="number"] {
 }
 
 .sub-nav-value {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     font-weight: 900;
     color: var(--text-main);
 }

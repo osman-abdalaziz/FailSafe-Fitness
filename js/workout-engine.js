@@ -12,9 +12,10 @@ import {
     setDoc,
     serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
-
+import { initHeatmap, updateHeatmap } from "./muscle-map.js";
 document.addEventListener("DOMContentLoaded", () => {
     initWorkoutEngine();
+    initHeatmap(); // تهيئة ملفات الـ SVG
 });
 
 // Global Session State
@@ -80,7 +81,10 @@ function restoreActiveSession(data) {
     workoutHome.classList.add("app-shell-hidden");
     activeWorkoutView.classList.remove("app-shell-hidden");
     // routineNameDisplay.innerText = currentRoutineName;
-
+    // NEW: Show sub-nav on session restore
+    document
+        .getElementById("session-sub-nav")
+        ?.classList.remove("app-shell-hidden");
     startSessionTimer();
     renderActiveExercises(currentExercises, data.setsState);
 }
@@ -120,7 +124,6 @@ function initWorkoutEngine() {
         const { routineId, routineName } = e.detail;
         const user = auth.currentUser;
         if (!user) return alert("System Error: Unauthenticated.");
-        if (sessionSubNav) sessionSubNav.classList.remove("app-shell-hidden");
         currentRoutineId = routineId;
         currentRoutineName = routineName;
         sessionStartTime = new Date();
@@ -130,6 +133,10 @@ function initWorkoutEngine() {
 
         workoutHome.classList.add("app-shell-hidden");
         activeWorkoutView.classList.remove("app-shell-hidden");
+        // NEW: Show sub-nav on new workout
+        document
+            .getElementById("session-sub-nav")
+            ?.classList.remove("app-shell-hidden");
         // routineNameDisplay.innerText = routineName;
         startSessionTimer();
 
@@ -178,6 +185,10 @@ function initWorkoutEngine() {
                 stopRestTimer();
                 activeWorkoutView.classList.add("app-shell-hidden");
                 workoutHome.classList.remove("app-shell-hidden");
+                // NEW: Hide sub-nav on discard
+                document
+                    .getElementById("session-sub-nav")
+                    ?.classList.add("app-shell-hidden");
                 // MODIFIED: Clear memory
                 localStorage.removeItem("metricfit_active_session");
             }
@@ -214,15 +225,10 @@ function renderActiveExercises(exercises, restoredSetsState = null) {
         card.innerHTML = `
             <div class="flex justify-between align-center border-b pb-sm mb-sm">
                 <div>
-                    <h3 class="text-primary mb-0" style="font-size: 1.1rem;">${ex.name}</h3>
-                    ${historicalStates[ex.id]?.best_volume > 0 ? `<span class="text-xs text-success">PR: ${historicalStates[ex.id].best_volume} kg</span>` : ""}
+                    <h3 onclick="openExerciseDetailsFromWorkout('${ex.id}')" class="text-primary mb-0" style="cursor: pointer; font-size: 1.1rem;">${ex.name} <i class="fas fa-circle-info fa-fw"></i></h3>
+                    ${historicalStates[ex.id]?.best_volume > 0 ? `<span class="text-xs success mf-badge">PR: ${historicalStates[ex.id].best_volume} kg</span>` : ""}
                 </div>
-                <button class="mf-btn-icon mf-btn-sm text-muted"
-                    onclick="openExerciseDetailsFromWorkout('${ex.id}')"
-                    title="Exercise Info" style="width:36px;height:36px;">
-                    <i class="fas fa-circle-info" style="color:var(--accent-primary);font-size:0.9rem;"></i>
-                </button>
-                <button class="mf-btn-icon mf-btn-sm text-muted" title="Exercise Options"><i class="fas fa-ellipsis-v"></i></button>
+                    <button class="mf-btn-icon mf-btn-sm text-muted" title="Exercise Options"><i class="fas fa-ellipsis-v"></i></button>
             </div>
             <table class="w-100 text-center text-sm" style="border-collapse: collapse;">
                 <thead>
@@ -479,6 +485,11 @@ async function compileAndSaveSession(btnFinish, activeView, homeView) {
         stopRestTimer();
         activeView.classList.add("app-shell-hidden");
         homeView.classList.remove("app-shell-hidden");
+
+        // NEW: Hide sub-nav when finished
+        document
+            .getElementById("session-sub-nav")
+            ?.classList.add("app-shell-hidden");
         btnFinish.disabled = false;
         btnFinish.innerHTML = `<i class="fas fa-check"></i> Finish`;
 
@@ -571,41 +582,93 @@ function stopRestTimer() {
 }
 
 // MODIFIED: Real-time Volumetric Calculation Engine
+// function updateSessionHeaderStats() {
+//     let totalVolume = 0;
+//     let completedSets = 0;
+
+//     // مسح كافة الصفوف النشطة في الـ DOM الحالي
+//     const rows = document.querySelectorAll(
+//         "#active-exercises-container tr, #active-exercises-container .set-row",
+//     );
+
+//     rows.forEach((row) => {
+//         const checkbox = row.querySelector(".set-checkbox");
+//         if (checkbox && checkbox.checked) {
+//             const weightInput = row.querySelector(".weight-input");
+//             const repsInput = row.querySelector(".reps-input");
+
+//             // الأولوية للقيمة المدخلة، ثم الـ Ghost Placeholder، ثم الصفر
+//             const w =
+//                 parseFloat(weightInput.value) ||
+//                 parseFloat(weightInput.placeholder) ||
+//                 0;
+//             const r =
+//                 parseInt(repsInput.value) ||
+//                 parseInt(repsInput.placeholder) ||
+//                 0;
+
+//             totalVolume += w * r;
+//             completedSets++;
+//         }
+//     });
+
+//     // تحديث واجهة المستخدم
+//     const volEl = document.getElementById("header-volume");
+//     const setsEl = document.getElementById("header-sets");
+//     if (volEl) volEl.innerText = `${totalVolume.toLocaleString()} kg`;
+//     if (setsEl) setsEl.innerText = completedSets;
+// }
+
+// MODIFIED: Real-time Volumetric & Muscle Distribution Calculation Engine
 function updateSessionHeaderStats() {
     let totalVolume = 0;
     let completedSets = 0;
+    let muscleVolumes = {}; // تتبع الحجم لكل عضلة
 
-    // مسح كافة الصفوف النشطة في الـ DOM الحالي
-    const rows = document.querySelectorAll(
-        "#active-exercises-container tr, #active-exercises-container .set-row",
-    );
+    // نمر على مصفوفة التمارين الأساسية لكي نعرف اسم العضلة لكل حاوية
+    currentExercises.forEach((ex, index) => {
+        const container = document.getElementById(`sets-container-${index}`);
+        if (!container) return;
 
-    rows.forEach((row) => {
-        const checkbox = row.querySelector(".set-checkbox");
-        if (checkbox && checkbox.checked) {
-            const weightInput = row.querySelector(".weight-input");
-            const repsInput = row.querySelector(".reps-input");
+        // تنظيف اسم العضلة لمطابقة الـ IDs (مثلاً Chest, Lats, Quads)
+        const muscle = (ex.muscle || "other").toLowerCase();
 
-            // الأولوية للقيمة المدخلة، ثم الـ Ghost Placeholder، ثم الصفر
-            const w =
-                parseFloat(weightInput.value) ||
-                parseFloat(weightInput.placeholder) ||
-                0;
-            const r =
-                parseInt(repsInput.value) ||
-                parseInt(repsInput.placeholder) ||
-                0;
+        const rows = container.querySelectorAll("tr");
+        rows.forEach((row) => {
+            const checkbox = row.querySelector(".set-checkbox");
+            if (checkbox && checkbox.checked) {
+                const weightInput = row.querySelector(".weight-input");
+                const repsInput = row.querySelector(".reps-input");
 
-            totalVolume += w * r;
-            completedSets++;
-        }
+                const w =
+                    parseFloat(weightInput.value) ||
+                    parseFloat(weightInput.placeholder) ||
+                    0;
+                const r =
+                    parseInt(repsInput.value) ||
+                    parseInt(repsInput.placeholder) ||
+                    0;
+                const vol = w * r;
+
+                totalVolume += vol;
+                completedSets++;
+
+                // جمع حجم العضلة التراكمي
+                muscleVolumes[muscle] = (muscleVolumes[muscle] || 0) + vol;
+            }
+        });
     });
 
-    // تحديث واجهة المستخدم
+    // تحديث الأرقام العلوية
     const volEl = document.getElementById("header-volume");
     const setsEl = document.getElementById("header-sets");
     if (volEl) volEl.innerText = `${totalVolume.toLocaleString()} kg`;
     if (setsEl) setsEl.innerText = completedSets;
+
+    // حقن البيانات في محرك الـ SVG Heatmap
+    if (typeof updateHeatmap === "function") {
+        updateHeatmap(muscleVolumes);
+    }
 }
 
 // NEW CONTENT HERE: Bridge — opens details overlay from active workout without touching session state
