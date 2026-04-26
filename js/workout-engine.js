@@ -12,10 +12,16 @@ import {
     setDoc,
     serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
-import { initHeatmap, updateHeatmap } from "./muscle-map.js";
+// NEW CONTENT HERE: Heatmap integration
+import {
+    resetHeatmap,
+    updateHeatmapSet,
+    initHeatmap,
+} from "./muscle-heatmap.js";
 document.addEventListener("DOMContentLoaded", () => {
     initWorkoutEngine();
-    initHeatmap(); // تهيئة ملفات الـ SVG
+
+    initHeatmap(); // NEW CONTENT HERE: boot heatmap
 });
 
 // Global Session State
@@ -128,6 +134,7 @@ function initWorkoutEngine() {
         currentRoutineName = routineName;
         sessionStartTime = new Date();
         historicalStates = {};
+        resetHeatmap();
         // MODIFIED: Clear any old junk before starting a new session
         localStorage.removeItem("metricfit_active_session");
 
@@ -337,6 +344,24 @@ window.addSetRow = (
             weightInput.classList.remove("ghost-fill");
             repsInput.classList.remove("ghost-fill");
             startRestTimer(restTimeSeconds);
+            // NEW CONTENT HERE: Feed completed set into heatmap
+            const ex = currentExercises[exerciseIndex];
+            if (ex && e.target.checked) {
+                const w =
+                    parseFloat(weightInput.value) ||
+                    parseFloat(weightInput.placeholder) ||
+                    0;
+                const r =
+                    parseInt(repsInput.value) ||
+                    parseInt(repsInput.placeholder) ||
+                    0;
+                updateHeatmapSet(ex.name, ex.muscle, {
+                    weight: w,
+                    reps: r,
+                    volume: w * r,
+                    is_pr: false,
+                });
+            }
         } else {
             row.style.opacity = "1";
             weightInput.disabled = false;
@@ -582,93 +607,41 @@ function stopRestTimer() {
 }
 
 // MODIFIED: Real-time Volumetric Calculation Engine
-// function updateSessionHeaderStats() {
-//     let totalVolume = 0;
-//     let completedSets = 0;
-
-//     // مسح كافة الصفوف النشطة في الـ DOM الحالي
-//     const rows = document.querySelectorAll(
-//         "#active-exercises-container tr, #active-exercises-container .set-row",
-//     );
-
-//     rows.forEach((row) => {
-//         const checkbox = row.querySelector(".set-checkbox");
-//         if (checkbox && checkbox.checked) {
-//             const weightInput = row.querySelector(".weight-input");
-//             const repsInput = row.querySelector(".reps-input");
-
-//             // الأولوية للقيمة المدخلة، ثم الـ Ghost Placeholder، ثم الصفر
-//             const w =
-//                 parseFloat(weightInput.value) ||
-//                 parseFloat(weightInput.placeholder) ||
-//                 0;
-//             const r =
-//                 parseInt(repsInput.value) ||
-//                 parseInt(repsInput.placeholder) ||
-//                 0;
-
-//             totalVolume += w * r;
-//             completedSets++;
-//         }
-//     });
-
-//     // تحديث واجهة المستخدم
-//     const volEl = document.getElementById("header-volume");
-//     const setsEl = document.getElementById("header-sets");
-//     if (volEl) volEl.innerText = `${totalVolume.toLocaleString()} kg`;
-//     if (setsEl) setsEl.innerText = completedSets;
-// }
-
-// MODIFIED: Real-time Volumetric & Muscle Distribution Calculation Engine
 function updateSessionHeaderStats() {
     let totalVolume = 0;
     let completedSets = 0;
-    let muscleVolumes = {}; // تتبع الحجم لكل عضلة
 
-    // نمر على مصفوفة التمارين الأساسية لكي نعرف اسم العضلة لكل حاوية
-    currentExercises.forEach((ex, index) => {
-        const container = document.getElementById(`sets-container-${index}`);
-        if (!container) return;
+    // مسح كافة الصفوف النشطة في الـ DOM الحالي
+    const rows = document.querySelectorAll(
+        "#active-exercises-container tr, #active-exercises-container .set-row",
+    );
 
-        // تنظيف اسم العضلة لمطابقة الـ IDs (مثلاً Chest, Lats, Quads)
-        const muscle = (ex.muscle || "other").toLowerCase();
+    rows.forEach((row) => {
+        const checkbox = row.querySelector(".set-checkbox");
+        if (checkbox && checkbox.checked) {
+            const weightInput = row.querySelector(".weight-input");
+            const repsInput = row.querySelector(".reps-input");
 
-        const rows = container.querySelectorAll("tr");
-        rows.forEach((row) => {
-            const checkbox = row.querySelector(".set-checkbox");
-            if (checkbox && checkbox.checked) {
-                const weightInput = row.querySelector(".weight-input");
-                const repsInput = row.querySelector(".reps-input");
+            // الأولوية للقيمة المدخلة، ثم الـ Ghost Placeholder، ثم الصفر
+            const w =
+                parseFloat(weightInput.value) ||
+                parseFloat(weightInput.placeholder) ||
+                0;
+            const r =
+                parseInt(repsInput.value) ||
+                parseInt(repsInput.placeholder) ||
+                0;
 
-                const w =
-                    parseFloat(weightInput.value) ||
-                    parseFloat(weightInput.placeholder) ||
-                    0;
-                const r =
-                    parseInt(repsInput.value) ||
-                    parseInt(repsInput.placeholder) ||
-                    0;
-                const vol = w * r;
-
-                totalVolume += vol;
-                completedSets++;
-
-                // جمع حجم العضلة التراكمي
-                muscleVolumes[muscle] = (muscleVolumes[muscle] || 0) + vol;
-            }
-        });
+            totalVolume += w * r;
+            completedSets++;
+        }
     });
 
-    // تحديث الأرقام العلوية
+    // تحديث واجهة المستخدم
     const volEl = document.getElementById("header-volume");
     const setsEl = document.getElementById("header-sets");
     if (volEl) volEl.innerText = `${totalVolume.toLocaleString()} kg`;
     if (setsEl) setsEl.innerText = completedSets;
-
-    // حقن البيانات في محرك الـ SVG Heatmap
-    if (typeof updateHeatmap === "function") {
-        updateHeatmap(muscleVolumes);
-    }
 }
 
 // NEW CONTENT HERE: Bridge — opens details overlay from active workout without touching session state
