@@ -1083,62 +1083,89 @@ input[type="number"] {
     text-align: left;
 }
 
-/* // NEW CONTENT HERE: Session Stats Header Professional Styles */
-.session-stats-header {
+/* --- Professional Navigation System --- */
+
+/* Main Navbar */
+.main-top-bar {
     position: sticky;
-    top: 20px;
-    z-index: 970;
-    background: linear-gradient(
-        180deg,
-        rgba(22, 30, 49, 0.95) 0%,
-        rgba(22, 30, 49, 0.84) 100%
-    );
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--space-xs);
-    padding: calc(var(--space-xs) + env(safe-area-inset-top, 0px))
-        var(--space-xs) var(--space-xs);
-    margin-bottom: var(--space-md);
-    border: var(--border-glass);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-md);
+    top: 0;
+    z-index: 1100;
+    background-color: var(--bg-deep);
+    border-bottom: 1px solid var(--border-glass);
+    padding: var(--space-sm) var(--space-md);
 }
 
-.stat-item {
+.nav-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.nav-brand {
+    font-size: 1.4rem !important;
+    margin-bottom: 0 !important;
+    background: linear-gradient(90deg, var(--text-main), var(--accent-primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.nav-profile-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.8rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.nav-profile-btn:hover {
+    color: var(--accent-primary);
+}
+
+/* Sub-Navbar (Flat, Professional, No Rounded Corners) */
+.sub-navbar {
+    position: sticky;
+    top: 60px; /* تحت الهيدر الأساسي تماماً */
+    z-index: 1050;
+    background-color: var(--bg-surface-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: space-around;
+    border-bottom: 1px solid var(--accent-primary-glow);
+    padding: 10px 0;
+}
+
+.sub-nav-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 3px;
-    min-width: 0;
-    padding: 8px 6px;
-    border-radius: var(--radius-sm);
-    background-color: rgba(11, 17, 32, 0.35);
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    gap: 2px;
 }
 
-.stat-label {
-    font-size: 0.66rem;
+.sub-nav-label {
+    font-size: 0.65rem;
     text-transform: uppercase;
     color: var(--text-muted);
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    white-space: nowrap;
+    font-weight: 800;
+    letter-spacing: 1px;
 }
 
-.stat-value {
-    font-size: 1.15rem;
+.sub-nav-value {
+    font-size: 1.1rem;
     font-weight: 900;
     color: var(--text-main);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
-#header-duration {
-    color: var(--accent-primary);
+/* Responsive Fix for Desktop */
+@media (min-width: 768px) {
+    .main-top-bar,
+    .sub-navbar {
+        left: 260px; /* محاذاة مع السايدبار */
+        /* width: calc(100% - 260px); */
+    }
 }
 
 @media (max-width: 767px) {

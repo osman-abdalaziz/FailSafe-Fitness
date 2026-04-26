@@ -90,6 +90,7 @@ function initWorkoutEngine() {
     const activeWorkoutView = document.getElementById("active-workout");
     const btnDiscard = document.getElementById("btn-discard-workout");
     const btnFinish = document.getElementById("btn-finish-workout");
+    const sessionSubNav = document.getElementById("session-sub-nav");
     // const routineNameDisplay = document.getElementById("active-routine-name");
 
     // MODIFIED: Auto-save on any input change in the workout view
@@ -119,7 +120,7 @@ function initWorkoutEngine() {
         const { routineId, routineName } = e.detail;
         const user = auth.currentUser;
         if (!user) return alert("System Error: Unauthenticated.");
-
+        if (sessionSubNav) sessionSubNav.classList.remove("app-shell-hidden");
         currentRoutineId = routineId;
         currentRoutineName = routineName;
         sessionStartTime = new Date();
@@ -360,7 +361,8 @@ window.addSetRow = (
 async function compileAndSaveSession(btnFinish, activeView, homeView) {
     const user = auth.currentUser;
     if (!user) return alert("System Error: No session.");
-
+    // Hide Sub-Nav when workout ends
+    if (sessionSubNav) sessionSubNav.classList.add("app-shell-hidden");
     const workoutLog = {
         uid: user.uid,
         metadata: {
@@ -615,3 +617,8 @@ window.openExerciseDetailsFromWorkout = (exerciseId) => {
         new CustomEvent("metricfitOpenExercise", { detail: ex }),
     );
 };
+
+document.getElementById("btn-go-to-profile")?.addEventListener("click", () => {
+    // محاكاة الضغط على أيتم البروفايل في الناف بار السفلي
+    document.querySelector('[data-target="view-profile"]').click();
+});
