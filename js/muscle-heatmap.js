@@ -439,143 +439,277 @@ function getMuscleEmoji(key) {
     return map[key] || "💪";
 }
 
-// ── SVG Definitions ───────────────────────────────────────────────────────────
-// Anatomically simplified but recognizable front/back muscle maps
-
+// MODIFIED: High-quality anatomically precise SVG — clean paths, defined muscle boundaries
 const SVG_FRONT = `
-<!-- Head -->
-<ellipse cx="100" cy="22" rx="18" ry="22" fill="var(--hm-body-base)" stroke="var(--hm-stroke)" stroke-width="0.8"/>
-<!-- Neck -->
-<rect x="91" y="40" width="18" height="14" rx="4" fill="var(--hm-body-base)" stroke="var(--hm-stroke)" stroke-width="0.8"/>
+<defs>
+  <style>
+    .hm-muscle { transition: fill 0.35s ease; }
+    .hm-muscle:hover { stroke: rgba(255,255,255,0.4) !important; stroke-width: 1 !important; }
+  </style>
+</defs>
 
-<!-- Chest (pectorals) — two lobes -->
-<path data-muscle="chest" d="M68,60 C68,54 78,52 100,53 C122,52 132,54 132,60 L130,82 C130,88 120,92 100,92 C80,92 70,88 68,82 Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
+<!-- ─── HEAD & NECK ─── -->
+<ellipse cx="100" cy="20" rx="15" ry="18"
+  fill="var(--hm-body-base)" stroke="var(--hm-stroke)" stroke-width="0.7"/>
+<path d="M94,36 L106,36 L107,50 L93,50 Z"
+  fill="var(--hm-body-base)" stroke="var(--hm-stroke)" stroke-width="0.7"/>
 
-<!-- Left Shoulder -->
-<ellipse data-muscle="shoulders" cx="57" cy="68" rx="13" ry="18" class="hm-muscle" style="fill:var(--hm-inactive)"/>
-<!-- Right Shoulder -->
-<ellipse data-muscle="shoulders" cx="143" cy="68" rx="13" ry="18" class="hm-muscle" style="fill:var(--hm-inactive)"/>
+<!-- ─── TORSO SILHOUETTE (non-interactive background) ─── -->
+<path d="M70,52 L130,52 L134,160 L115,165 L100,168 L85,165 L66,160 Z"
+  fill="var(--hm-body-base)" stroke="var(--hm-stroke)" stroke-width="0.6"/>
 
-<!-- Left Bicep -->
-<path data-muscle="biceps" d="M44,84 C40,84 36,88 36,96 L38,116 C38,122 42,126 48,126 L56,124 C60,122 62,116 60,108 L56,86 C54,84 48,84 44,84Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
-<!-- Right Bicep -->
-<path data-muscle="biceps" d="M156,84 C160,84 164,88 164,96 L162,116 C162,122 158,126 152,126 L144,124 C140,122 138,116 140,108 L144,86 C146,84 152,84 156,84Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
+<!-- ─── CHEST ─── -->
+<path data-muscle="chest"
+  d="M73,54 C73,54 84,51 100,51 C116,51 127,54 127,54
+     L124,80 C120,87 112,91 100,91 C88,91 80,87 76,80 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
+<!-- sternum line -->
+<line x1="100" y1="53" x2="100" y2="91"
+  stroke="var(--hm-stroke)" stroke-width="0.8" pointer-events="none"/>
 
-<!-- Left Forearm -->
-<path data-muscle="forearms" d="M37,118 C34,118 32,122 33,130 L36,152 C37,157 41,160 46,159 L52,156 C56,154 57,149 55,142 L50,120 C48,118 42,118 37,118Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
-<!-- Right Forearm -->
-<path data-muscle="forearms" d="M163,118 C166,118 168,122 167,130 L164,152 C163,157 159,160 154,159 L148,156 C144,154 143,149 145,142 L150,120 C152,118 158,118 163,118Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
+<!-- ─── SHOULDERS ─── -->
+<!-- Left -->
+<path data-muscle="shoulders"
+  d="M70,52 C64,52 56,56 52,64 L50,80 C52,88 58,92 64,90 L72,86 L73,54 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
+<!-- Right -->
+<path data-muscle="shoulders"
+  d="M130,52 C136,52 144,56 148,64 L150,80 C148,88 142,92 136,90 L128,86 L127,54 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
 
-<!-- Abs (6-pack grid) -->
-<path data-muscle="abs" d="M83,93 C83,93 100,91 117,93 L118,145 C118,151 110,156 100,156 C90,156 82,151 82,145 Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
-<!-- Abs internal lines (decorative, non-interactive) -->
-<line x1="83" y1="110" x2="118" y2="110" stroke="var(--hm-stroke)" stroke-width="0.5" pointer-events="none"/>
-<line x1="83" y1="128" x2="118" y2="128" stroke="var(--hm-stroke)" stroke-width="0.5" pointer-events="none"/>
-<line x1="100" y1="93" x2="100" y2="156" stroke="var(--hm-stroke)" stroke-width="0.5" pointer-events="none"/>
+<!-- ─── BICEPS ─── -->
+<!-- Left -->
+<path data-muscle="biceps"
+  d="M51,82 C48,82 44,86 43,94 L44,114 C45,120 49,124 54,123
+     L60,120 C64,118 65,112 63,104 L60,84 C58,82 54,82 51,82 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
+<!-- Right -->
+<path data-muscle="biceps"
+  d="M149,82 C152,82 156,86 157,94 L156,114 C155,120 151,124 146,123
+     L140,120 C136,118 135,112 137,104 L140,84 C142,82 146,82 149,82 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
 
-<!-- Left Oblique -->
-<path data-muscle="obliques" d="M69,96 C65,96 62,102 63,112 L66,140 C67,146 71,150 76,148 L83,145 L82,93 Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
-<!-- Right Oblique -->
-<path data-muscle="obliques" d="M131,96 C135,96 138,102 137,112 L134,140 C133,146 129,150 124,148 L117,145 L118,93 Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
+<!-- ─── FOREARMS ─── -->
+<!-- Left -->
+<path data-muscle="forearms"
+  d="M43,117 C40,117 37,121 37,129 L39,152 C40,158 44,162 49,161
+     L55,158 C59,156 60,150 58,142 L53,119 C51,117 46,117 43,117 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
+<!-- Right -->
+<path data-muscle="forearms"
+  d="M157,117 C160,117 163,121 163,129 L161,152 C160,158 156,162 151,161
+     L145,158 C141,156 140,150 142,142 L147,119 C149,117 154,117 157,117 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
 
-<!-- Left Quad -->
-<path data-muscle="quads" d="M72,160 C68,160 64,165 65,174 L70,220 C71,228 76,234 83,233 L91,231 C97,229 99,222 97,213 L90,166 C88,162 82,160 72,160Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
-<!-- Right Quad -->
-<path data-muscle="quads" d="M128,160 C132,160 136,165 135,174 L130,220 C129,228 124,234 117,233 L109,231 C103,229 101,222 103,213 L110,166 C112,162 118,160 128,160Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
+<!-- ─── OBLIQUES ─── -->
+<!-- Left -->
+<path data-muscle="obliques"
+  d="M66,94 C62,94 59,100 60,112 L63,140 C64,147 68,152 73,150
+     L80,147 L79,92 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
+<!-- Right -->
+<path data-muscle="obliques"
+  d="M134,94 C138,94 141,100 140,112 L137,140 C136,147 132,152 127,150
+     L120,147 L121,92 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
 
-<!-- Left Adductor -->
-<path data-muscle="adductors" d="M91,163 C91,163 97,165 100,166 C100,166 100,220 99,228 L88,228 L85,180 Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
-<!-- Right Adductor -->
-<path data-muscle="adductors" d="M109,163 C109,163 103,165 100,166 C100,166 100,220 101,228 L112,228 L115,180 Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
+<!-- ─── ABS ─── -->
+<path data-muscle="abs"
+  d="M80,92 L120,92 L121,150 C121,156 112,160 100,160
+     C88,160 79,156 79,150 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
+<!-- abs grid lines -->
+<line x1="80" y1="109" x2="120" y2="109" stroke="var(--hm-stroke)" stroke-width="0.7" pointer-events="none"/>
+<line x1="80" y1="128" x2="120" y2="128" stroke="var(--hm-stroke)" stroke-width="0.7" pointer-events="none"/>
+<line x1="100" y1="92"  x2="100" y2="160" stroke="var(--hm-stroke)" stroke-width="0.7" pointer-events="none"/>
 
-<!-- Left Calves (front — tibialis) -->
-<path data-muscle="calves" d="M69,238 C65,238 62,244 63,254 L66,288 C67,295 71,298 76,297 L82,294 C87,292 88,285 86,275 L80,244 C78,240 74,238 69,238Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
-<!-- Right Calves (front) -->
-<path data-muscle="calves" d="M131,238 C135,238 138,244 137,254 L134,288 C133,295 129,298 124,297 L118,294 C113,292 112,285 114,275 L120,244 C122,240 126,238 131,238Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
+<!-- ─── HIP / PELVIS (decorative) ─── -->
+<path d="M67,161 C67,161 82,170 100,170 C118,170 133,161 133,161 L132,175 C128,180 116,184 100,184 C84,184 72,180 68,175 Z"
+  fill="var(--hm-body-base)" stroke="var(--hm-stroke)" stroke-width="0.6" pointer-events="none"/>
 
-<!-- Torso outline / pelvis -->
-<path d="M68,60 L62,155 C62,158 80,165 100,165 C120,165 138,158 138,155 L132,60" fill="none" stroke="var(--hm-stroke)" stroke-width="0.6" pointer-events="none"/>
-<!-- Hip band -->
-<path d="M65,156 C65,156 80,165 100,166 C120,165 135,156 135,156 L134,170 C134,170 120,178 100,178 C80,178 66,170 66,170Z" fill="var(--hm-body-base)" stroke="var(--hm-stroke)" stroke-width="0.6" pointer-events="none"/>
+<!-- ─── QUADS ─── -->
+<!-- Left -->
+<path data-muscle="quads"
+  d="M68,172 C63,172 59,178 60,188 L65,232 C67,241 73,246 81,245
+     L89,242 C95,240 97,232 95,222 L87,178 C85,173 78,172 68,172 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
+<!-- Right -->
+<path data-muscle="quads"
+  d="M132,172 C137,172 141,178 140,188 L135,232 C133,241 127,246 119,245
+     L111,242 C105,240 103,232 105,222 L113,178 C115,173 122,172 132,172 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
+
+<!-- ─── ADDUCTORS ─── -->
+<!-- Left inner thigh -->
+<path data-muscle="adductors"
+  d="M89,174 C89,174 96,177 100,178 L99,242 L87,242 L85,195 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
+<!-- Right inner thigh -->
+<path data-muscle="adductors"
+  d="M111,174 C111,174 104,177 100,178 L101,242 L113,242 L115,195 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
+
+<!-- ─── CALVES (tibialis anterior) ─── -->
+<!-- Left -->
+<path data-muscle="calves"
+  d="M64,250 C60,250 57,256 58,267 L61,302 C62,310 67,314 73,313
+     L79,310 C84,308 85,300 83,290 L76,256 C74,251 69,250 64,250 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
+<!-- Right -->
+<path data-muscle="calves"
+  d="M136,250 C140,250 143,256 142,267 L139,302 C138,310 133,314 127,313
+     L121,310 C116,308 115,300 117,290 L124,256 C126,251 131,250 136,250 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
 `;
 
 const SVG_BACK = `
-<!-- Head -->
-<ellipse cx="100" cy="22" rx="18" ry="22" fill="var(--hm-body-base)" stroke="var(--hm-stroke)" stroke-width="0.8"/>
-<!-- Neck back -->
-<rect x="91" y="40" width="18" height="14" rx="4" fill="var(--hm-body-base)" stroke="var(--hm-stroke)" stroke-width="0.8"/>
+<defs>
+  <style>
+    .hm-muscle { transition: fill 0.35s ease; }
+    .hm-muscle:hover { stroke: rgba(255,255,255,0.4) !important; stroke-width: 1 !important; }
+  </style>
+</defs>
 
-<!-- Traps (upper trapezius — diamond shape) -->
-<path data-muscle="traps" d="M100,44 C86,46 70,52 66,62 L72,74 C80,68 90,63 100,62 C110,63 120,68 128,74 L134,62 C130,52 114,46 100,44Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
+<!-- ─── HEAD & NECK ─── -->
+<ellipse cx="100" cy="20" rx="15" ry="18"
+  fill="var(--hm-body-base)" stroke="var(--hm-stroke)" stroke-width="0.7"/>
+<path d="M94,36 L106,36 L107,50 L93,50 Z"
+  fill="var(--hm-body-base)" stroke="var(--hm-stroke)" stroke-width="0.7"/>
 
-<!-- Left Rear Shoulder -->
-<ellipse data-muscle="shoulders" cx="57" cy="72" rx="14" ry="19" class="hm-muscle" style="fill:var(--hm-inactive)"/>
-<!-- Right Rear Shoulder -->
-<ellipse data-muscle="shoulders" cx="143" cy="72" rx="14" ry="19" class="hm-muscle" style="fill:var(--hm-inactive)"/>
+<!-- ─── TORSO SILHOUETTE ─── -->
+<path d="M70,52 L130,52 L134,185 L115,190 L100,192 L85,190 L66,185 Z"
+  fill="var(--hm-body-base)" stroke="var(--hm-stroke)" stroke-width="0.6"/>
 
-<!-- Left Lats -->
-<path data-muscle="lats" d="M68,72 C62,78 60,90 62,106 L66,130 C68,138 74,143 82,140 L92,136 L90,90 C88,80 80,70 68,72Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
-<!-- Right Lats -->
-<path data-muscle="lats" d="M132,72 C138,78 140,90 138,106 L134,130 C132,138 126,143 118,140 L108,136 L110,90 C112,80 120,70 132,72Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
+<!-- ─── TRAPEZIUS ─── -->
+<path data-muscle="traps"
+  d="M100,38 C86,40 70,48 66,60 L72,76 C80,70 90,64 100,63
+     C110,64 120,70 128,76 L134,60 C130,48 114,40 100,38 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
 
-<!-- Lower Back (erector spinae) -->
-<path data-muscle="lower_back" d="M88,138 C84,138 82,144 83,152 L86,170 C87,176 91,180 96,179 L104,179 C109,180 113,176 114,170 L117,152 C118,144 116,138 112,138 Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
-<!-- Spine line decorative -->
-<line x1="100" y1="62" x2="100" y2="179" stroke="var(--hm-stroke)" stroke-width="0.6" stroke-dasharray="3,3" pointer-events="none"/>
+<!-- ─── REAR SHOULDERS ─── -->
+<!-- Left -->
+<path data-muscle="shoulders"
+  d="M66,58 C60,58 52,64 49,72 L48,88 C50,96 57,100 63,98
+     L71,94 L72,56 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
+<!-- Right -->
+<path data-muscle="shoulders"
+  d="M134,58 C140,58 148,64 151,72 L152,88 C150,96 143,100 137,98
+     L129,94 L128,56 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
 
-<!-- Left Tricep -->
-<path data-muscle="triceps" d="M43,86 C39,86 35,91 36,100 L39,120 C40,127 44,131 50,130 L57,127 C61,125 62,118 60,110 L55,88 C53,86 47,86 43,86Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
-<!-- Right Tricep -->
-<path data-muscle="triceps" d="M157,86 C161,86 165,91 164,100 L161,120 C160,127 156,131 150,130 L143,127 C139,125 138,118 140,110 L145,88 C147,86 153,86 157,86Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
+<!-- ─── LATS ─── -->
+<!-- Left -->
+<path data-muscle="lats"
+  d="M67,75 C61,82 59,96 61,114 L65,138 C67,148 74,154 83,150
+     L93,146 L91,95 C89,82 80,72 67,75 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
+<!-- Right -->
+<path data-muscle="lats"
+  d="M133,75 C139,82 141,96 139,114 L135,138 C133,148 126,154 117,150
+     L107,146 L109,95 C111,82 120,72 133,75 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
 
-<!-- Left Forearm (back) -->
-<path data-muscle="forearms" d="M38,122 C35,122 33,127 34,135 L37,158 C38,163 42,166 47,165 L53,162 C57,160 58,155 56,148 L51,124 C49,122 43,122 38,122Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
-<!-- Right Forearm (back) -->
-<path data-muscle="forearms" d="M162,122 C165,122 167,127 166,135 L163,158 C162,163 158,166 153,165 L147,162 C143,160 142,155 144,148 L149,124 C151,122 157,122 162,122Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
+<!-- ─── LOWER BACK (erector spinae) ─── -->
+<path data-muscle="lower_back"
+  d="M87,148 C83,148 80,155 81,164 L84,183 C85,190 90,194 96,193
+     L104,193 C110,194 115,190 116,183 L119,164
+     C120,155 117,148 113,148 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
+<!-- spine -->
+<line x1="100" y1="63" x2="100" y2="193"
+  stroke="var(--hm-stroke)" stroke-width="0.8" stroke-dasharray="4,3"
+  pointer-events="none"/>
 
-<!-- Left Glute -->
-<path data-muscle="glutes" d="M66,178 C62,178 60,184 61,193 L65,215 C67,223 73,228 80,226 L93,222 L92,188 C90,180 80,177 66,178Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
-<!-- Right Glute -->
-<path data-muscle="glutes" d="M134,178 C138,178 140,184 139,193 L135,215 C133,223 127,228 120,226 L107,222 L108,188 C110,180 120,177 134,178Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
+<!-- ─── TRICEPS ─── -->
+<!-- Left -->
+<path data-muscle="triceps"
+  d="M48,90 C44,90 40,95 41,104 L44,124 C45,131 50,135 56,134
+     L62,131 C66,129 67,122 65,114 L60,92 C58,90 52,90 48,90 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
+<!-- Right -->
+<path data-muscle="triceps"
+  d="M152,90 C156,90 160,95 159,104 L156,124 C155,131 150,135 144,134
+     L138,131 C134,129 133,122 135,114 L140,92 C142,90 148,90 152,90 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
 
-<!-- Left Hamstring -->
-<path data-muscle="hamstrings" d="M69,228 C65,228 62,234 63,244 L68,278 C69,286 74,291 81,290 L88,287 C93,285 95,278 93,268 L86,234 C84,230 78,228 69,228Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
-<!-- Right Hamstring -->
-<path data-muscle="hamstrings" d="M131,228 C135,228 138,234 137,244 L132,278 C131,286 126,291 119,290 L112,287 C107,285 105,278 107,268 L114,234 C116,230 122,228 131,228Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
+<!-- ─── FOREARMS (back) ─── -->
+<!-- Left -->
+<path data-muscle="forearms"
+  d="M40,127 C37,127 34,132 35,141 L38,164 C39,170 44,174 49,172
+     L55,169 C59,167 60,161 58,153 L53,129 C51,127 45,127 40,127 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
+<!-- Right -->
+<path data-muscle="forearms"
+  d="M160,127 C163,127 166,132 165,141 L162,164 C161,170 156,174 151,172
+     L145,169 C141,167 140,161 142,153 L147,129 C149,127 155,127 160,127 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
 
-<!-- Left Calf (gastrocnemius) -->
-<path data-muscle="calves" d="M68,292 C64,292 61,299 62,310 L66,346 C67,354 72,358 78,356 L84,353 C89,350 90,342 88,332 L81,298 C79,294 74,292 68,292Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
-<!-- Right Calf -->
-<path data-muscle="calves" d="M132,292 C136,292 139,299 138,310 L134,346 C133,354 128,358 122,356 L116,353 C111,350 110,342 112,332 L119,298 C121,294 126,292 132,292Z"
-    class="hm-muscle" style="fill:var(--hm-inactive)"/>
+<!-- ─── GLUTES ─── -->
+<!-- Left -->
+<path data-muscle="glutes"
+  d="M67,188 C62,188 59,195 60,205 L64,228 C66,237 73,243 81,240
+     L95,236 L93,205 C91,194 82,187 67,188 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
+<!-- Right -->
+<path data-muscle="glutes"
+  d="M133,188 C138,188 141,195 140,205 L136,228 C134,237 127,243 119,240
+     L105,236 L107,205 C109,194 118,187 133,188 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
 
-<!-- Torso back outline -->
-<path d="M70,72 L64,178 C64,178 80,186 100,186 C120,186 136,178 136,178 L130,72" fill="none" stroke="var(--hm-stroke)" stroke-width="0.6" pointer-events="none"/>
+<!-- ─── HAMSTRINGS ─── -->
+<!-- Left -->
+<path data-muscle="hamstrings"
+  d="M64,242 C59,242 56,249 57,260 L62,298 C64,307 70,312 78,311
+     L85,308 C91,305 92,297 90,286 L82,249 C80,244 74,242 64,242 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
+<!-- Right -->
+<path data-muscle="hamstrings"
+  d="M136,242 C141,242 144,249 143,260 L138,298 C136,307 130,312 122,311
+     L115,308 C109,305 108,297 110,286 L118,249 C120,244 126,242 136,242 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
+
+<!-- ─── CALVES (gastrocnemius) ─── -->
+<!-- Left -->
+<path data-muscle="calves"
+  d="M62,314 C58,314 55,321 56,333 L59,366 C60,374 66,379 73,377
+     L79,374 C84,371 85,363 83,352 L75,320 C73,315 67,314 62,314 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
+<!-- Right -->
+<path data-muscle="calves"
+  d="M138,314 C142,314 145,321 144,333 L141,366 C140,374 134,379 127,377
+     L121,374 C116,371 115,363 117,352 L125,320 C127,315 133,314 138,314 Z"
+  class="hm-muscle" fill="var(--hm-inactive)"
+  stroke="var(--hm-stroke)" stroke-width="0.6"/>
 `;
