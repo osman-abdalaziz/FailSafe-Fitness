@@ -75,27 +75,6 @@ window.saveActiveSessionLocal = () => {
     );
 };
 
-// function restoreActiveSession(data) {
-//     currentRoutineId = data.currentRoutineId;
-//     currentRoutineName = data.currentRoutineName;
-//     sessionStartTime = new Date(data.sessionStartTime);
-//     currentExercises = data.currentExercises;
-//     historicalStates = data.historicalStates;
-
-//     const workoutHome = document.getElementById("workout-home");
-//     const activeWorkoutView = document.getElementById("active-workout");
-//     // const routineNameDisplay = document.getElementById("active-routine-name");
-
-//     workoutHome.classList.add("app-shell-hidden");
-//     activeWorkoutView.classList.remove("app-shell-hidden");
-//     // routineNameDisplay.innerText = currentRoutineName;
-//     // NEW: Show sub-nav on session restore
-//     document
-//         .getElementById("session-sub-nav")
-//         ?.classList.remove("app-shell-hidden");
-//     startSessionTimer();
-//     renderActiveExercises(currentExercises, data.setsState);
-// }
 // MODIFIED: Registers exercises with heatmap BEFORE rendering so DOM-scan works correctly
 function restoreActiveSession(data) {
     currentRoutineId = data.currentRoutineId;
@@ -124,7 +103,10 @@ function restoreActiveSession(data) {
     renderActiveExercises(currentExercises, data.setsState);
 
     // Small delay ensures DOM is fully painted before scanning
-    setTimeout(() => refreshHeatmap(), 50);
+    setTimeout(() => {
+        updateSessionHeaderStats();
+        refreshHeatmap();
+    }, 50);
 }
 
 function initWorkoutEngine() {
@@ -185,7 +167,7 @@ function initWorkoutEngine() {
         startSessionTimer();
 
         document.getElementById("active-exercises-container").innerHTML =
-            `<p class="text-muted text-center py-md"><i class="fas fa-spinner fa-spin"></i> Fetching mechanical history...</p>`;
+            `<p class="text-muted text-center py-md">Fetching mechanical history... <i class="fas fa-spinner fa-spin"></i></p>`;
 
         try {
             // 1. Get Routine Data
@@ -373,57 +355,6 @@ window.addSetRow = (
         repsInput.classList.remove("ghost-fill");
     }
 
-    // checkbox.addEventListener("change", (e) => {
-    //     if (e.target.checked) {
-    //         if (!weightInput.value && weightInput.placeholder !== "0")
-    //             weightInput.value = weightInput.placeholder;
-    //         if (!repsInput.value && repsInput.placeholder !== "0")
-    //             repsInput.value = repsInput.placeholder;
-
-    //         row.style.opacity = "0.6";
-    //         weightInput.disabled = true;
-    //         repsInput.disabled = true;
-    //         weightInput.classList.remove("ghost-fill");
-    //         repsInput.classList.remove("ghost-fill");
-    //         startRestTimer(restTimeSeconds);
-    //         // NEW CONTENT HERE: Feed completed set into heatmap
-    //         const ex = currentExercises[exerciseIndex];
-    //         if (ex && e.target.checked) {
-    //             const w =
-    //                 parseFloat(weightInput.value) ||
-    //                 parseFloat(weightInput.placeholder) ||
-    //                 0;
-    //             const r =
-    //                 parseInt(repsInput.value) ||
-    //                 parseInt(repsInput.placeholder) ||
-    //                 0;
-    //             updateHeatmapSet(ex.name, ex.muscle, {
-    //                 weight: w,
-    //                 reps: r,
-    //                 volume: w * r,
-    //                 is_pr: false,
-    //             });
-    //         }
-    //     } else {
-    //         row.style.opacity = "1";
-    //         weightInput.disabled = false;
-    //         repsInput.disabled = false;
-    //         if (
-    //             weightInput.value === weightInput.placeholder &&
-    //             weightInput.placeholder !== "0"
-    //         )
-    //             weightInput.classList.add("ghost-fill");
-    //         if (
-    //             repsInput.value === repsInput.placeholder &&
-    //             repsInput.placeholder !== "0"
-    //         )
-    //             repsInput.classList.add("ghost-fill");
-    //     }
-    //     // MODIFIED LINE: Update header stats in real-time
-    //     updateSessionHeaderStats();
-    //     window.saveActiveSessionLocal(); // Save when checked/unchecked
-    // });
-
     // MODIFIED: Both check and uncheck call refreshHeatmap — DOM-derived state handles both correctly
     checkbox.addEventListener("change", (e) => {
         if (e.target.checked) {
@@ -560,11 +491,18 @@ async function compileAndSaveSession(btnFinish, activeView, homeView) {
         }
     });
 
-    if (workoutLog.exercises_data.length === 0)
+    if (workoutLog.exercises_data.length === 0) {
+        document
+            .getElementById("session-sub-nav")
+            ?.classList.remove("app-shell-hidden");
+        document
+            .getElementById("hm-subnav-wrap")
+            ?.classList.remove("app-shell-hidden");
         return alert("Clinical Warning: Log at least one set.");
+    }
 
     btnFinish.disabled = true;
-    btnFinish.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Saving...`;
+    btnFinish.innerHTML = `Saving... <i class="fas fa-spinner fa-spin fa-fw"></i>`;
 
     try {
         await addDoc(collection(db, "workouts_log"), workoutLog);
@@ -602,8 +540,9 @@ async function compileAndSaveSession(btnFinish, activeView, homeView) {
         document
             .getElementById("hm-subnav-wrap")
             ?.classList.add("app-shell-hidden");
+
         btnFinish.disabled = false;
-        btnFinish.innerHTML = `<i class="fas fa-check"></i> Finish`;
+        btnFinish.innerHTML = `Finish <i class="fas fa-check fa-fw"></i>`;
 
         alert(
             `System: Session Logged. Total Volume: ${totalSessionVolume} kg.`,
@@ -612,7 +551,7 @@ async function compileAndSaveSession(btnFinish, activeView, homeView) {
         console.error("Save Error:", error);
         alert("Database Error: Could not log session.");
         btnFinish.disabled = false;
-        btnFinish.innerHTML = `<i class="fas fa-check"></i> Finish`;
+        btnFinish.innerHTML = `Finish <i class="fas fa-check fa-fw"></i>`;
     }
 }
 

@@ -2290,3 +2290,17 @@ input[type="number"] {
     font-size: 0.6rem;
     color: var(--text-muted);
 }
+
+.fa-spin {
+    animation: spin 1s ease-in-out infinite !important;
+    -webkit-animation: spin 1s ease-in-out infinite !important;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
