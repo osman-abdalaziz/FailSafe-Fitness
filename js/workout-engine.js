@@ -13,9 +13,11 @@ import {
     serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 // NEW CONTENT HERE: Heatmap integration
+// MODIFIED: Updated imports — refreshHeatmap replaces updateHeatmapSet, add setHeatmapExercises
 import {
     resetHeatmap,
-    updateHeatmapSet,
+    refreshHeatmap,
+    setHeatmapExercises,
     initHeatmap,
 } from "./muscle-heatmap.js";
 document.addEventListener("DOMContentLoaded", () => {
@@ -73,6 +75,28 @@ window.saveActiveSessionLocal = () => {
     );
 };
 
+// function restoreActiveSession(data) {
+//     currentRoutineId = data.currentRoutineId;
+//     currentRoutineName = data.currentRoutineName;
+//     sessionStartTime = new Date(data.sessionStartTime);
+//     currentExercises = data.currentExercises;
+//     historicalStates = data.historicalStates;
+
+//     const workoutHome = document.getElementById("workout-home");
+//     const activeWorkoutView = document.getElementById("active-workout");
+//     // const routineNameDisplay = document.getElementById("active-routine-name");
+
+//     workoutHome.classList.add("app-shell-hidden");
+//     activeWorkoutView.classList.remove("app-shell-hidden");
+//     // routineNameDisplay.innerText = currentRoutineName;
+//     // NEW: Show sub-nav on session restore
+//     document
+//         .getElementById("session-sub-nav")
+//         ?.classList.remove("app-shell-hidden");
+//     startSessionTimer();
+//     renderActiveExercises(currentExercises, data.setsState);
+// }
+// MODIFIED: Registers exercises with heatmap BEFORE rendering so DOM-scan works correctly
 function restoreActiveSession(data) {
     currentRoutineId = data.currentRoutineId;
     currentRoutineName = data.currentRoutineName;
@@ -80,19 +104,27 @@ function restoreActiveSession(data) {
     currentExercises = data.currentExercises;
     historicalStates = data.historicalStates;
 
+    // NEW: Register exercises so heatmap can map DOM rows → muscles
+    setHeatmapExercises(currentExercises);
+
     const workoutHome = document.getElementById("workout-home");
     const activeWorkoutView = document.getElementById("active-workout");
-    // const routineNameDisplay = document.getElementById("active-routine-name");
 
     workoutHome.classList.add("app-shell-hidden");
     activeWorkoutView.classList.remove("app-shell-hidden");
-    // routineNameDisplay.innerText = currentRoutineName;
-    // NEW: Show sub-nav on session restore
     document
         .getElementById("session-sub-nav")
         ?.classList.remove("app-shell-hidden");
+    document
+        .getElementById("hm-subnav-wrap")
+        ?.classList.remove("app-shell-hidden");
     startSessionTimer();
+
+    // ISSUE 1: Render DOM first, then immediately recalculate heatmap from restored checked rows
     renderActiveExercises(currentExercises, data.setsState);
+
+    // Small delay ensures DOM is fully painted before scanning
+    setTimeout(() => refreshHeatmap(), 50);
 }
 
 function initWorkoutEngine() {
@@ -134,6 +166,8 @@ function initWorkoutEngine() {
         currentRoutineName = routineName;
         sessionStartTime = new Date();
         historicalStates = {};
+        // MODIFIED: Register exercises for heatmap before render
+        setHeatmapExercises([]); // clear first
         resetHeatmap();
         // MODIFIED: Clear any old junk before starting a new session
         localStorage.removeItem("metricfit_active_session");
@@ -143,6 +177,9 @@ function initWorkoutEngine() {
         // NEW: Show sub-nav on new workout
         document
             .getElementById("session-sub-nav")
+            ?.classList.remove("app-shell-hidden");
+        document
+            .getElementById("hm-subnav-wrap")
             ?.classList.remove("app-shell-hidden");
         // routineNameDisplay.innerText = routineName;
         startSessionTimer();
@@ -174,6 +211,8 @@ function initWorkoutEngine() {
 
             // 3. Render UI with actual data
             renderActiveExercises(currentExercises);
+            // NEW: Register exercises after they are loaded from Firestore
+            setHeatmapExercises(currentExercises);
             window.saveActiveSessionLocal(); // Initial Save
         } catch (error) {
             console.error("Engine Error:", error);
@@ -195,6 +234,9 @@ function initWorkoutEngine() {
                 // NEW: Hide sub-nav on discard
                 document
                     .getElementById("session-sub-nav")
+                    ?.classList.add("app-shell-hidden");
+                document
+                    .getElementById("hm-subnav-wrap")
                     ?.classList.add("app-shell-hidden");
                 // MODIFIED: Clear memory
                 localStorage.removeItem("metricfit_active_session");
@@ -331,6 +373,58 @@ window.addSetRow = (
         repsInput.classList.remove("ghost-fill");
     }
 
+    // checkbox.addEventListener("change", (e) => {
+    //     if (e.target.checked) {
+    //         if (!weightInput.value && weightInput.placeholder !== "0")
+    //             weightInput.value = weightInput.placeholder;
+    //         if (!repsInput.value && repsInput.placeholder !== "0")
+    //             repsInput.value = repsInput.placeholder;
+
+    //         row.style.opacity = "0.6";
+    //         weightInput.disabled = true;
+    //         repsInput.disabled = true;
+    //         weightInput.classList.remove("ghost-fill");
+    //         repsInput.classList.remove("ghost-fill");
+    //         startRestTimer(restTimeSeconds);
+    //         // NEW CONTENT HERE: Feed completed set into heatmap
+    //         const ex = currentExercises[exerciseIndex];
+    //         if (ex && e.target.checked) {
+    //             const w =
+    //                 parseFloat(weightInput.value) ||
+    //                 parseFloat(weightInput.placeholder) ||
+    //                 0;
+    //             const r =
+    //                 parseInt(repsInput.value) ||
+    //                 parseInt(repsInput.placeholder) ||
+    //                 0;
+    //             updateHeatmapSet(ex.name, ex.muscle, {
+    //                 weight: w,
+    //                 reps: r,
+    //                 volume: w * r,
+    //                 is_pr: false,
+    //             });
+    //         }
+    //     } else {
+    //         row.style.opacity = "1";
+    //         weightInput.disabled = false;
+    //         repsInput.disabled = false;
+    //         if (
+    //             weightInput.value === weightInput.placeholder &&
+    //             weightInput.placeholder !== "0"
+    //         )
+    //             weightInput.classList.add("ghost-fill");
+    //         if (
+    //             repsInput.value === repsInput.placeholder &&
+    //             repsInput.placeholder !== "0"
+    //         )
+    //             repsInput.classList.add("ghost-fill");
+    //     }
+    //     // MODIFIED LINE: Update header stats in real-time
+    //     updateSessionHeaderStats();
+    //     window.saveActiveSessionLocal(); // Save when checked/unchecked
+    // });
+
+    // MODIFIED: Both check and uncheck call refreshHeatmap — DOM-derived state handles both correctly
     checkbox.addEventListener("change", (e) => {
         if (e.target.checked) {
             if (!weightInput.value && weightInput.placeholder !== "0")
@@ -344,25 +438,8 @@ window.addSetRow = (
             weightInput.classList.remove("ghost-fill");
             repsInput.classList.remove("ghost-fill");
             startRestTimer(restTimeSeconds);
-            // NEW CONTENT HERE: Feed completed set into heatmap
-            const ex = currentExercises[exerciseIndex];
-            if (ex && e.target.checked) {
-                const w =
-                    parseFloat(weightInput.value) ||
-                    parseFloat(weightInput.placeholder) ||
-                    0;
-                const r =
-                    parseInt(repsInput.value) ||
-                    parseInt(repsInput.placeholder) ||
-                    0;
-                updateHeatmapSet(ex.name, ex.muscle, {
-                    weight: w,
-                    reps: r,
-                    volume: w * r,
-                    is_pr: false,
-                });
-            }
         } else {
+            // ISSUE 2: Uncheck — re-enable inputs
             row.style.opacity = "1";
             weightInput.disabled = false;
             repsInput.disabled = false;
@@ -377,9 +454,11 @@ window.addSetRow = (
             )
                 repsInput.classList.add("ghost-fill");
         }
-        // MODIFIED LINE: Update header stats in real-time
+
+        // ISSUE 1 + 2: Single call handles both check and uncheck — derives fresh state from DOM
+        refreshHeatmap();
         updateSessionHeaderStats();
-        window.saveActiveSessionLocal(); // Save when checked/unchecked
+        window.saveActiveSessionLocal();
     });
 
     container.appendChild(row);
@@ -392,8 +471,13 @@ window.addSetRow = (
 async function compileAndSaveSession(btnFinish, activeView, homeView) {
     const user = auth.currentUser;
     if (!user) return alert("System Error: No session.");
-    // Hide Sub-Nav when workout ends
+    // Hide Sub-Nav when workout ends.
+    const sessionSubNav = document.getElementById("session-sub-nav");
+
     if (sessionSubNav) sessionSubNav.classList.add("app-shell-hidden");
+    document
+        .getElementById("hm-subnav-wrap")
+        ?.classList.add("app-shell-hidden");
     const workoutLog = {
         uid: user.uid,
         metadata: {
@@ -515,6 +599,9 @@ async function compileAndSaveSession(btnFinish, activeView, homeView) {
         document
             .getElementById("session-sub-nav")
             ?.classList.add("app-shell-hidden");
+        document
+            .getElementById("hm-subnav-wrap")
+            ?.classList.add("app-shell-hidden");
         btnFinish.disabled = false;
         btnFinish.innerHTML = `<i class="fas fa-check"></i> Finish`;
 
@@ -560,7 +647,7 @@ function startSessionTimer() {
 
 function stopSessionTimer() {
     if (sessionTimerInterval) clearInterval(sessionTimerInterval);
-    document.getElementById("global-timer").innerText = "00:00:00";
+    // document.getElementById("global-timer").innerText = "00:00:00";
 }
 
 function startRestTimer(seconds) {

@@ -44,16 +44,17 @@
                 <span class="sub-nav-label">Sets</span>
                 <span id="header-sets" class="sub-nav-value tabular-nums">0</span>
             </div>
-        </div>
-        <!-- NEW CONTENT HERE: Muscle Heatmap in Sub-Nav -->
-        <div id="hm-subnav-wrap" class="hm-subnav-strip">
-            <div id="heatmap-svg-container" class="hm-subnav-svgs"></div>
-            <div class="hm-subnav-legend">
-                <span class="hm-legend-dot hm-legend-cool"></span><span class="hm-legend-label">Low</span>
-                <span class="hm-legend-dot hm-legend-warm"></span><span class="hm-legend-label">Mid</span>
-                <span class="hm-legend-dot hm-legend-hot"></span><span class="hm-legend-label">High</span>
+            <div class="sub-nav-item">
+                <!-- <span class="sub-nav-label">
+                    Heatmap
+                </span> -->
+                <div id="hm-subnav-wrap" class="hm-subnav-strip">
+                    <div id="hm-mini-wrap"></div>
+                </div>
             </div>
         </div>
+        <!-- MODIFIED: Mini heatmap strip — SVG thumbnails, clickable -->
+
         <main id="main-content" class="mt-md">
 
             <div id="view-workout" class="app-view" style="display: block;">
@@ -94,12 +95,12 @@
 
                     <div class="flex justify-between align-center mb-md border-b pb-sm"
                         style="justify-content: flex-end;">
-                        <div>
+                        <!-- <div>
                             <h2 class="text-primary mb-0" id="active-routine-name">Workout</h2>
                             <p class="text-sm text-muted tabular-nums font-bold" id="global-timer">00:00:00</p>
-                        </div>
+                        </div> -->
                         <button class="mf-btn mf-btn-primary mf-btn-sm bg-success" id="btn-finish-workout">
-                            <i class="fas fa-check"></i> Finish
+                            Finish <i class="fas fa-check fa-fw"></i>
                         </button>
                     </div>
 

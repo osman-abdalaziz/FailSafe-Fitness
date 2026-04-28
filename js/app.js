@@ -144,15 +144,27 @@ function initRouter() {
 
             pageTitle.innerText = item.querySelector("span").innerText;
 
+            const savedSession = localStorage.getItem(
+                "metricfit_active_session",
+            );
+
             // NEW: Hide sub-nav on main view switch
-            if (targetId !== "view-workout") {
-                document
-                    .getElementById("session-sub-nav")
-                    ?.classList.add("app-shell-hidden");
-            } else {
-                document
-                    .getElementById("session-sub-nav")
-                    ?.classList.remove("app-shell-hidden");
+            if (savedSession) {
+                if (targetId !== "view-workout") {
+                    document
+                        .getElementById("session-sub-nav")
+                        ?.classList.add("app-shell-hidden");
+                    document
+                        .getElementById("hm-subnav-wrap")
+                        ?.classList.add("app-shell-hidden");
+                } else {
+                    document
+                        .getElementById("session-sub-nav")
+                        ?.classList.remove("app-shell-hidden");
+                    document
+                        .getElementById("hm-subnav-wrap")
+                        ?.classList.remove("app-shell-hidden");
+                }
             }
         });
     });
