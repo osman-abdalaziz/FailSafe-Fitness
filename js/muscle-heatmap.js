@@ -128,6 +128,11 @@ function deriveHeatmapStateFromDOM() {
                 const checkbox = row.querySelector(".set-checkbox");
                 if (!checkbox || !checkbox.checked) return;
 
+                // NEW: Isolate Warmups from Heatmap
+                const typeBtn = row.querySelector(".set-type-btn");
+                if (typeBtn && typeBtn.getAttribute("data-type") === "W")
+                    return;
+
                 const weightInput = row.querySelector(".weight-input");
                 const repsInput = row.querySelector(".reps-input");
                 const w =

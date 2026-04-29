@@ -56,7 +56,10 @@ window.saveActiveSessionLocal = () => {
             const weight = row.querySelector(".weight-input").value;
             const reps = row.querySelector(".reps-input").value;
             const checked = row.querySelector(".set-checkbox").checked;
-            exerciseSets.push({ weight, reps, checked });
+            // NEW: Save the set type
+            const typeBtn = row.querySelector(".set-type-btn");
+            const type = typeBtn ? typeBtn.getAttribute("data-type") : "N";
+            exerciseSets.push({ type, weight, reps, checked });
         });
         setsState.push(exerciseSets);
     });
@@ -244,22 +247,35 @@ function initWorkoutEngine() {
         ?.addEventListener("click", stopRestTimer);
 }
 
-// MODIFIED: Accept restored sets array
+// MODIFIED: Support full structure ghosting
 function renderActiveExercises(exercises, restoredSetsState = null) {
     const container = document.getElementById("active-exercises-container");
     container.innerHTML = "";
 
     exercises.forEach((ex, index) => {
-        // ... (Keep the exact same Card HTML structure you currently have) ...
         const card = document.createElement("div");
         card.className = "mf-card mb-md p-sm border-primary";
+
+        const img0 = ex.images?.[0]
+            ? `https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/${ex.images[0]}`
+            : `https://ui-avatars.com/api/?name=${ex.name}&background=1e293b&color=38bdf8`;
+
         card.innerHTML = `
             <div class="flex justify-between align-center border-b pb-sm mb-sm">
-                <div>
-                    <h3 onclick="openExerciseDetailsFromWorkout('${ex.id}')" class="text-primary mb-0" style="cursor: pointer; font-size: 1.1rem;">${ex.name} <i class="fas fa-circle-info fa-fw"></i></h3>
-                    ${historicalStates[ex.id]?.best_volume > 0 ? `<span class="text-xs success mf-badge">PR: ${historicalStates[ex.id].best_volume} kg</span>` : ""}
+                <div class="flex align-center gap-sm">
+                        <!-- NEW: Avatar Image with fallback -->
+                        <div class="ex-avatar">
+                        <img src="${img0}" 
+                            alt="${ex.name}" 
+                            class="active-ex-thumb"
+                            onerror="this.src='https://ui-avatars.com/api/?name=${ex.name}&background=1e293b&color=38bdf8'">
+                            </div>
+                    <div>
+                        <h3 onclick="openExerciseDetailsFromWorkout('${ex.id}')" class="text-primary mb-0" style="cursor: pointer; font-size: 1.1rem;">${ex.name} <i class="fas fa-circle-info fa-fw"></i></h3>
+                        ${historicalStates[ex.id]?.best_volume > 0 ? `<span class="text-xs success mf-badge">PR: ${historicalStates[ex.id].best_volume} kg</span>` : ""}
+                    </div>
                 </div>
-                    <button class="mf-btn-icon mf-btn-sm text-muted" title="Exercise Options"><i class="fas fa-ellipsis-v"></i></button>
+                <button class="mf-btn-icon mf-btn-sm text-muted" title="Exercise Options"><i class="fas fa-ellipsis-v"></i></button>
             </div>
             <table class="w-100 text-center text-sm" style="border-collapse: collapse;">
                 <thead>
@@ -276,7 +292,7 @@ function renderActiveExercises(exercises, restoredSetsState = null) {
         `;
         container.appendChild(card);
 
-        // MODIFIED: Render restored sets OR just 1 default set
+        // MODIFIED: Inject full structure from previous session (Ghost Clone)
         if (
             restoredSetsState &&
             restoredSetsState[index] &&
@@ -285,42 +301,57 @@ function renderActiveExercises(exercises, restoredSetsState = null) {
             restoredSetsState[index].forEach((savedSet) => {
                 addSetRow(index, ex.id, ex.restTimer || 90, savedSet);
             });
+        } else if (historicalStates[ex.id]?.last_sets_structure?.length > 0) {
+            historicalStates[ex.id].last_sets_structure.forEach((ghostSet) => {
+                addSetRow(index, ex.id, ex.restTimer || 90, null, ghostSet);
+            });
         } else {
             addSetRow(index, ex.id, ex.restTimer || 90);
         }
     });
 }
 
-// MODIFIED: Accept restoredSet object and inject its values
+// MODIFIED: Accept ghostStructure
 window.addSetRow = (
     exerciseIndex,
     exerciseId,
     restTimeSeconds,
     restoredSet = null,
+    ghostStructure = null,
 ) => {
     const container = document.getElementById(
         `sets-container-${exerciseIndex}`,
     );
-    const setNumber = container.children.length + 1;
-
     const row = document.createElement("tr");
     row.className = "tabular-nums";
     row.style.borderColor = "rgba(255,255,255,0.03)";
 
-    const ghostWeight = historicalStates[exerciseId]?.last_used_weight || "";
-    const ghostReps = historicalStates[exerciseId]?.last_reps || "";
-
-    // Extract saved values if any
+    // Determine values and types
     let valW = restoredSet ? restoredSet.weight : "";
     let valR = restoredSet ? restoredSet.reps : "";
     let isChecked = restoredSet ? restoredSet.checked : false;
+    let type = restoredSet
+        ? restoredSet.type
+        : ghostStructure
+          ? ghostStructure.type
+          : "N";
 
-    // Determine if Ghost Class should exist
+    const ghostWeight = ghostStructure
+        ? ghostStructure.weight
+        : historicalStates[exerciseId]?.last_used_weight || "";
+    const ghostReps = ghostStructure
+        ? ghostStructure.reps
+        : historicalStates[exerciseId]?.last_reps || "";
+
     const hasGhostW = !valW && ghostWeight ? "ghost-fill" : "";
     const hasGhostR = !valR && ghostReps ? "ghost-fill" : "";
 
+    if (type === "W") row.classList.add("warmup-row");
+
     row.innerHTML = `
-        <td class="text-muted font-bold text-center" style="vertical-align: middle;">${setNumber}</td>
+        <td style="vertical-align: middle;">
+            <button class="set-type-btn" data-type="${type}" onclick="toggleSetType(this)"></button>
+        </td>
         <td style="padding: 6px 4px;">
             <div class="mf-num-central mx-auto w-100">
                 <button class="mf-num-btn-hz" data-action="decrement"><i class="fas fa-minus"></i></button>
@@ -346,7 +377,6 @@ window.addSetRow = (
     const weightInput = row.querySelector(".weight-input");
     const repsInput = row.querySelector(".reps-input");
 
-    // Re-lock UI if it was previously checked
     if (isChecked) {
         row.style.opacity = "0.6";
         weightInput.disabled = true;
@@ -355,14 +385,12 @@ window.addSetRow = (
         repsInput.classList.remove("ghost-fill");
     }
 
-    // MODIFIED: Both check and uncheck call refreshHeatmap — DOM-derived state handles both correctly
     checkbox.addEventListener("change", (e) => {
         if (e.target.checked) {
             if (!weightInput.value && weightInput.placeholder !== "0")
                 weightInput.value = weightInput.placeholder;
             if (!repsInput.value && repsInput.placeholder !== "0")
                 repsInput.value = repsInput.placeholder;
-
             row.style.opacity = "0.6";
             weightInput.disabled = true;
             repsInput.disabled = true;
@@ -370,7 +398,6 @@ window.addSetRow = (
             repsInput.classList.remove("ghost-fill");
             startRestTimer(restTimeSeconds);
         } else {
-            // ISSUE 2: Uncheck — re-enable inputs
             row.style.opacity = "1";
             weightInput.disabled = false;
             repsInput.disabled = false;
@@ -385,17 +412,14 @@ window.addSetRow = (
             )
                 repsInput.classList.add("ghost-fill");
         }
-
-        // ISSUE 1 + 2: Single call handles both check and uncheck — derives fresh state from DOM
-        refreshHeatmap();
+        if (typeof refreshHeatmap === "function") refreshHeatmap();
         updateSessionHeaderStats();
         window.saveActiveSessionLocal();
     });
 
     container.appendChild(row);
+    window.renumberSets(container); // Re-calc numbering
     if (window.initCustomNumberInputs) window.initCustomNumberInputs();
-
-    // Save only if it's a manual add, not during a bulk restore loop
     if (!restoredSet) window.saveActiveSessionLocal();
 };
 
@@ -460,17 +484,46 @@ async function compileAndSaveSession(btnFinish, activeView, homeView) {
             // A set is valid if explicitly checked OR if user typed numbers but forgot to check
             const isValid = isChecked || (weight > 0 && reps > 0);
 
-            if (isValid) {
-                const volume = weight * reps;
-                const isPR = volume > currentBestVolume;
-                if (isPR) currentBestVolume = volume;
+            // if (isValid) {
+            //     const volume = weight * reps;
+            //     const isPR = volume > currentBestVolume;
+            //     if (isPR) currentBestVolume = volume;
 
-                exerciseVolume += volume;
-                totalSessionVolume += volume;
+            //     exerciseVolume += volume;
+            //     totalSessionVolume += volume;
+
+            //     validSets.push({
+            //         set_index: setIdx + 1,
+            //         set_type: "Normal",
+            //         weight: weight,
+            //         reps: reps,
+            //         volume: volume,
+            //         is_pr: isPR,
+            //     });
+            // }
+            if (isValid) {
+                const typeBtn = row.querySelector(".set-type-btn");
+                const setType = typeBtn
+                    ? typeBtn.getAttribute("data-type")
+                    : "N";
+
+                // WARMUPS DO NOT COUNT FOR VOLUME OR PRs
+                const volume = setType === "W" ? 0 : weight * reps;
+
+                let isPR = false;
+                if (setType !== "W" && volume > currentBestVolume) {
+                    isPR = true;
+                    currentBestVolume = volume;
+                }
+
+                if (setType !== "W") {
+                    exerciseVolume += volume;
+                    totalSessionVolume += volume;
+                }
 
                 validSets.push({
                     set_index: setIdx + 1,
-                    set_type: "Normal",
+                    set_type: setType,
                     weight: weight,
                     reps: reps,
                     volume: volume,
@@ -508,6 +561,27 @@ async function compileAndSaveSession(btnFinish, activeView, homeView) {
         await addDoc(collection(db, "workouts_log"), workoutLog);
 
         // Update user_exercise_state (The Performance Layer)
+        // for (const exData of workoutLog.exercises_data) {
+        //     const lastSet = exData.sets[exData.sets.length - 1];
+        //     const stateRef = doc(
+        //         db,
+        //         "user_exercise_state",
+        //         `${user.uid}_${exData.exercise_id}`,
+        //     );
+
+        //     await setDoc(
+        //         stateRef,
+        //         {
+        //             last_used_weight: lastSet.weight,
+        //             last_reps: lastSet.reps,
+        //             best_volume: exData.new_best_volume,
+        //             updatedAt: serverTimestamp(),
+        //         },
+        //         { merge: true },
+        //     );
+        // }
+
+        // Update user_exercise_state (The Performance Layer)
         for (const exData of workoutLog.exercises_data) {
             const lastSet = exData.sets[exData.sets.length - 1];
             const stateRef = doc(
@@ -516,11 +590,19 @@ async function compileAndSaveSession(btnFinish, activeView, homeView) {
                 `${user.uid}_${exData.exercise_id}`,
             );
 
+            // Extract structure for clone next time
+            const setsStructure = exData.sets.map((s) => ({
+                type: s.set_type,
+                weight: s.weight,
+                reps: s.reps,
+            }));
+
             await setDoc(
                 stateRef,
                 {
                     last_used_weight: lastSet.weight,
                     last_reps: lastSet.reps,
+                    last_sets_structure: setsStructure, // NEW: Full clone memory
                     best_volume: exData.new_best_volume,
                     updatedAt: serverTimestamp(),
                 },
@@ -647,19 +729,38 @@ function updateSessionHeaderStats() {
         if (checkbox && checkbox.checked) {
             const weightInput = row.querySelector(".weight-input");
             const repsInput = row.querySelector(".reps-input");
+            // NEW: Ignore Warmups for Volume
+            const typeBtn = row.querySelector(".set-type-btn");
+            const isWarmup =
+                typeBtn && typeBtn.getAttribute("data-type") === "W";
 
-            // الأولوية للقيمة المدخلة، ثم الـ Ghost Placeholder، ثم الصفر
-            const w =
-                parseFloat(weightInput.value) ||
-                parseFloat(weightInput.placeholder) ||
-                0;
-            const r =
-                parseInt(repsInput.value) ||
-                parseInt(repsInput.placeholder) ||
-                0;
+            if (!isWarmup) {
+                const weightInput = row.querySelector(".weight-input");
+                const repsInput = row.querySelector(".reps-input");
+                const w =
+                    parseFloat(weightInput.value) ||
+                    parseFloat(weightInput.placeholder) ||
+                    0;
+                const r =
+                    parseInt(repsInput.value) ||
+                    parseInt(repsInput.placeholder) ||
+                    0;
 
-            totalVolume += w * r;
-            completedSets++;
+                totalVolume += w * r;
+                completedSets++;
+            }
+            // // الأولوية للقيمة المدخلة، ثم الـ Ghost Placeholder، ثم الصفر
+            // const w =
+            //     parseFloat(weightInput.value) ||
+            //     parseFloat(weightInput.placeholder) ||
+            //     0;
+            // const r =
+            //     parseInt(repsInput.value) ||
+            //     parseInt(repsInput.placeholder) ||
+            //     0;
+
+            // totalVolume += w * r;
+            // completedSets++;
         }
     });
 
@@ -684,3 +785,34 @@ document.getElementById("btn-go-to-profile")?.addEventListener("click", () => {
     // محاكاة الضغط على أيتم البروفايل في الناف بار السفلي
     document.querySelector('[data-target="view-profile"]').click();
 });
+
+// NEW CONTENT: Cycle through Set Types and renumber
+window.toggleSetType = (btn) => {
+    const types = ["N", "W", "D", "F"];
+    const current = btn.getAttribute("data-type") || "N";
+    const next = types[(types.indexOf(current) + 1) % types.length];
+
+    btn.setAttribute("data-type", next);
+    const row = btn.closest("tr");
+
+    if (next === "W") row.classList.add("warmup-row");
+    else row.classList.remove("warmup-row");
+
+    // Trigger re-numbering
+    const container = btn.closest(".sets-container");
+    window.renumberSets(container);
+
+    if (window.saveActiveSessionLocal) window.saveActiveSessionLocal();
+    if (typeof updateSessionHeaderStats === "function")
+        updateSessionHeaderStats();
+    if (typeof refreshHeatmap === "function") refreshHeatmap();
+};
+
+window.renumberSets = (container) => {
+    let count = 1;
+    container.querySelectorAll(".set-type-btn").forEach((b) => {
+        const t = b.getAttribute("data-type");
+        if (t === "N") b.innerText = count++;
+        else b.innerText = t;
+    });
+};

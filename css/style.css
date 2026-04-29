@@ -1805,9 +1805,14 @@ input[type="number"] {
 
 :root {
     --hm-inactive: rgba(255, 255, 255, 0.07);
-    --hm-cool: rgba(56, 189, 248, 0.45); /* Low intensity — cyan */
-    --hm-warm: rgba(251, 191, 36, 0.65); /* Mid intensity — amber */
-    --hm-hot: rgba(244, 63, 94, 0.85); /* High intensity — rose */
+    /* --hm-cool: rgba(56, 189, 248, 0.45); */
+    --hm-cool: var(--accent-primary); /* Low intensity — cyan */
+    --hm-warm: var(
+        --accent-warning
+    ); /* Mid intensity — amber rgba(251, 191, 36, 0.65) */
+    --hm-hot: var(
+        --accent-error
+    ); /* High intensity — rose rgba(244, 63, 94, 0.85) */
     --hm-body-base: #1e2a42;
     --hm-stroke: rgba(255, 255, 255, 0.08);
 }
@@ -2303,4 +2308,60 @@ input[type="number"] {
     100% {
         transform: rotate(360deg);
     }
+}
+
+/* =========================================
+   SET TYPE MECHANICS (N, W, D, F)
+   ========================================= */
+.set-type-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-weight: 800;
+    font-size: 0.9rem;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    transition: var(--transition-fast);
+}
+.set-type-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+/* W = Warmup (Warning/Yellow) */
+.set-type-btn[data-type="W"] {
+    color: var(--accent-warning);
+    background: rgba(251, 191, 36, 0.1);
+}
+/* D = Drop-set (Primary/Blue) */
+.set-type-btn[data-type="D"] {
+    color: var(--accent-primary);
+    background: var(--accent-primary-glow);
+}
+/* F = Failure (Error/Red) */
+.set-type-btn[data-type="F"] {
+    color: var(--accent-error);
+    background: var(--accent-error-glow);
+}
+
+/* Warmup isolation (dimming the inputs slightly) */
+.warmup-row {
+    opacity: 0.8;
+}
+
+/* =========================================
+   ACTIVE WORKOUT THUMBNAILS
+   ========================================= */
+.active-ex-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: var(--bg-deep);
+    border: 1px solid var(--border-glass);
+    flex-shrink: 0;
 }
