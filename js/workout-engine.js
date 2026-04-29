@@ -113,6 +113,7 @@ function restoreActiveSession(data) {
 }
 
 function initWorkoutEngine() {
+    initSwipeToDelete(); // NEW CONTENT HERE: Initialize swipe mechanics
     const workoutHome = document.getElementById("workout-home");
     const activeWorkoutView = document.getElementById("active-workout");
     const btnDiscard = document.getElementById("btn-discard-workout");
@@ -247,27 +248,23 @@ function initWorkoutEngine() {
         ?.addEventListener("click", stopRestTimer);
 }
 
-// MODIFIED: Support full structure ghosting
+// MODIFIED: Support full structure ghosting + Delete Column
 function renderActiveExercises(exercises, restoredSetsState = null) {
     const container = document.getElementById("active-exercises-container");
     container.innerHTML = "";
-
     exercises.forEach((ex, index) => {
         const card = document.createElement("div");
         card.className = "mf-card mb-md p-sm border-primary";
-
         const img0 = ex.images?.[0]
             ? `https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/${ex.images[0]}`
             : `https://ui-avatars.com/api/?name=${ex.name}&background=1e293b&color=38bdf8`;
-
         card.innerHTML = `
             <div class="flex justify-between align-center border-b pb-sm mb-sm">
                 <div class="flex align-center gap-sm">
-                        <!-- NEW: Avatar Image with fallback -->
                         <div class="ex-avatar">
                         <img src="${img0}" 
-                            alt="${ex.name}" 
-                            class="active-ex-thumb"
+                             alt="${ex.name}" 
+                             class="active-ex-thumb"
                             onerror="this.src='https://ui-avatars.com/api/?name=${ex.name}&background=1e293b&color=38bdf8'">
                             </div>
                     <div>
@@ -277,13 +274,14 @@ function renderActiveExercises(exercises, restoredSetsState = null) {
                 </div>
                 <button class="mf-btn-icon mf-btn-sm text-muted" title="Exercise Options"><i class="fas fa-ellipsis-v"></i></button>
             </div>
-            <table class="w-100 text-center text-sm" style="border-collapse: collapse;">
+            <table class="w-100 text-center text-sm" style="border-collapse: collapse; overflow-x: hidden;">
                 <thead>
                     <tr class="text-muted font-bold" style="border-color: rgba(255,255,255,0.05);">
                         <th style="padding-bottom: 8px; width: 15%;">Set</th>
                         <th style="padding-bottom: 8px; width: 35%;">kg</th>
                         <th style="padding-bottom: 8px; width: 35%;">Reps</th>
                         <th style="padding-bottom: 8px; width: 15%;"><i class="fas fa-check"></i></th>
+                        <th class="delete-col" style="padding-bottom: 8px;"></th>
                     </tr>
                 </thead>
                 <tbody class="sets-container" id="sets-container-${index}"></tbody>
@@ -292,7 +290,6 @@ function renderActiveExercises(exercises, restoredSetsState = null) {
         `;
         container.appendChild(card);
 
-        // MODIFIED: Inject full structure from previous session (Ghost Clone)
         if (
             restoredSetsState &&
             restoredSetsState[index] &&
@@ -311,7 +308,7 @@ function renderActiveExercises(exercises, restoredSetsState = null) {
     });
 }
 
-// MODIFIED: Accept ghostStructure
+// MODIFIED: Inject Delete Button Action
 window.addSetRow = (
     exerciseIndex,
     exerciseId,
@@ -326,7 +323,6 @@ window.addSetRow = (
     row.className = "tabular-nums";
     row.style.borderColor = "rgba(255,255,255,0.03)";
 
-    // Determine values and types
     let valW = restoredSet ? restoredSet.weight : "";
     let valR = restoredSet ? restoredSet.reps : "";
     let isChecked = restoredSet ? restoredSet.checked : false;
@@ -342,7 +338,6 @@ window.addSetRow = (
     const ghostReps = ghostStructure
         ? ghostStructure.reps
         : historicalStates[exerciseId]?.last_reps || "";
-
     const hasGhostW = !valW && ghostWeight ? "ghost-fill" : "";
     const hasGhostR = !valR && ghostReps ? "ghost-fill" : "";
 
@@ -370,6 +365,12 @@ window.addSetRow = (
             <div class="flex justify-center">
                 <input type="checkbox" class="mf-checkbox set-checkbox" ${isChecked ? "checked" : ""}>
             </div>
+        </td>
+        <td class="delete-col" style="vertical-align: middle; padding: 0;">
+            <button class="mf-btn-icon text-error btn-delete-set" onclick="window.deleteSetRow(this)" title="Delete Set">
+            Delete
+            <i class="fas fa-trash fa-fw"></i>
+            </button>
         </td>
     `;
 
@@ -418,10 +419,168 @@ window.addSetRow = (
     });
 
     container.appendChild(row);
-    window.renumberSets(container); // Re-calc numbering
+    window.renumberSets(container);
     if (window.initCustomNumberInputs) window.initCustomNumberInputs();
     if (!restoredSet) window.saveActiveSessionLocal();
 };
+
+// ==========================================
+// Sets Deletion & Mobile Swipe UX Engine
+// ==========================================
+
+// Global Delete Function
+window.deleteSetRow = (btn) => {
+    const row = btn.closest("tr");
+    if (!row) return;
+    const container = row.closest(".sets-container");
+
+    // Smooth visual removal
+    row.style.transition = "all 0.3s ease-out";
+    row.style.opacity = "0";
+    row.style.transform = "translateX(-100%)";
+
+    setTimeout(() => {
+        row.remove();
+
+        // Architecture triggers: Deleting the DOM node perfectly aligns with the system
+        if (window.renumberSets) window.renumberSets(container);
+        if (window.saveActiveSessionLocal) window.saveActiveSessionLocal();
+        if (typeof updateSessionHeaderStats === "function")
+            updateSessionHeaderStats();
+        if (typeof refreshHeatmap === "function") refreshHeatmap();
+    }, 300);
+};
+
+// Touch Mechanics for Swipe-to-Delete
+// Touch & Mouse Mechanics for Unified Swipe-to-Delete
+function initSwipeToDelete() {
+    const container = document.getElementById("active-exercises-container");
+    if (!container) return;
+
+    let startX = 0,
+        startY = 0;
+    let activeRow = null;
+    let isSwiping = false;
+    let swipeIntentDetected = false; // To distinguish between swiping and clicking/scrolling
+
+    // Helper functions to extract coordinates universally from Mouse or Touch events
+    const getX = (e) => (e.touches ? e.touches[0].clientX : e.clientX);
+    const getY = (e) => (e.touches ? e.touches[0].clientY : e.clientY);
+
+    const handleStart = (e) => {
+        // Prevent action if using a right-click on mouse
+        if (e.type === "mousedown" && e.button !== 0) return;
+
+        const row = e.target.closest("tr");
+        if (!row || !row.querySelector(".delete-col")) return;
+
+        // Auto-close any other swiped rows
+        const swipedRow = document.querySelector("tr.swiped-left");
+        if (swipedRow && swipedRow !== row) {
+            swipedRow.style.transform = "translateX(0)";
+            swipedRow.classList.remove("swiped-left");
+        }
+
+        startX = getX(e);
+        startY = getY(e);
+        activeRow = row;
+        isSwiping = true;
+        swipeIntentDetected = false;
+        row.style.transition = "none"; // Lock transition for 1:1 cursor tracking
+    };
+
+    const handleMove = (e) => {
+        if (!isSwiping || !activeRow) return;
+
+        const diffX = getX(e) - startX;
+        const diffY = getY(e) - startY;
+
+        // Intent detection threshold (Buffer of 5px)
+        if (!swipeIntentDetected) {
+            if (Math.abs(diffX) > 5 || Math.abs(diffY) > 5) {
+                if (Math.abs(diffY) > Math.abs(diffX)) {
+                    // Vertical scroll intent detected -> Abort horizontal swipe
+                    isSwiping = false;
+                    activeRow.style.transition = "transform 0.25s ease-out";
+                    activeRow.style.transform = activeRow.classList.contains(
+                        "swiped-left",
+                    )
+                        ? "translateX(-80px)"
+                        : "translateX(0)";
+                    return;
+                } else {
+                    // Horizontal swipe intent confirmed
+                    swipeIntentDetected = true;
+                }
+            } else {
+                return; // Haven't moved enough to confirm intent
+            }
+        }
+
+        // Only prevent default (which stops text selection and pan) if we are actively swiping
+        if (swipeIntentDetected && e.cancelable) {
+            e.preventDefault();
+        }
+
+        const base = activeRow.classList.contains("swiped-left") ? -80 : 0;
+        let moveX = base + diffX;
+
+        // Mechanical Clamp: Max stretch 80px to left, 0px to right
+        if (moveX > 0) moveX = 0;
+        if (moveX < -80) moveX = -80;
+
+        activeRow.style.transform = `translateX(${moveX}px)`;
+    };
+
+    const handleEnd = (e) => {
+        if (!activeRow) return;
+
+        activeRow.style.transition = "transform 0.25s ease-out";
+
+        // Handle touch end vs mouse up
+        const endX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+        const diffX = endX - startX;
+
+        const base = activeRow.classList.contains("swiped-left") ? -80 : 0;
+        const totalMove = base + diffX;
+
+        // Snap logic: Open if dragged past half the button width (-40px)
+        if (totalMove < -40) {
+            activeRow.style.transform = "translateX(-80px)";
+            activeRow.classList.add("swiped-left");
+        } else {
+            activeRow.style.transform = "translateX(0)";
+            activeRow.classList.remove("swiped-left");
+        }
+
+        activeRow = null;
+        isSwiping = false;
+        swipeIntentDetected = false;
+    };
+
+    // 1. Touch Events (Mobile)
+    container.addEventListener("touchstart", handleStart, { passive: true });
+    container.addEventListener("touchmove", handleMove, { passive: false });
+    container.addEventListener("touchend", handleEnd, { passive: true });
+    container.addEventListener("touchcancel", handleEnd, { passive: true });
+
+    // 2. Mouse Events (Desktop)
+    container.addEventListener("mousedown", handleStart, { passive: true });
+    // We attach mousemove & mouseup to the 'window' so we don't lose the swipe if the cursor moves slightly out of the row bounds
+    window.addEventListener("mousemove", handleMove, { passive: false });
+    window.addEventListener("mouseup", handleEnd, { passive: true });
+
+    // Global intercept: Click outside to dismiss
+    document.addEventListener("click", (e) => {
+        if (!e.target.closest(".btn-delete-set")) {
+            const swipedRow = document.querySelector("tr.swiped-left");
+            if (swipedRow && !swipedRow.contains(e.target)) {
+                swipedRow.style.transform = "translateX(0)";
+                swipedRow.classList.remove("swiped-left");
+            }
+        }
+    });
+}
 
 async function compileAndSaveSession(btnFinish, activeView, homeView) {
     const user = auth.currentUser;

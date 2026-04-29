@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
         integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="icon" type="image/png" href="image/rect44.png">
     <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -18,6 +19,7 @@
         <header class="main-top-bar">
             <div class="nav-container">
                 <h1 id="page-title" class="nav-brand">Workout</h1>
+                <img class="nav-logo" src="image/g50.svg" alt="MetricFit Logo">
                 <div class="nav-actions">
                     <button id="btn-go-to-profile" class="nav-profile-btn" title="Profile">
                         <i class="fas fa-user-circle"></i>
@@ -60,6 +62,32 @@
             <div id="view-workout" class="app-view" style="display: block;">
 
                 <div id="workout-home">
+                    <!-- =========================================
+                         ROUTINES SECTION COMPONENT
+                         ========================================= -->
+                    <div class="routines-section mt-md w-100">
+                        <!-- Header & Controls -->
+                        <div class="flex justify-between align-center mb-md px-sm">
+                            <h2 class="mb-0">Routines</h2>
+                            <div class="flex gap-sm">
+                                <button class="mf-btn-icon mf-btn-sm text-primary"
+                                    onclick="routinesManager.createNewFolder()" title="New Folder">
+                                    <i class="fas fa-folder-plus"></i>
+                                </button>
+                                <button class="mf-btn-icon mf-btn-sm text-main"
+                                    onclick="window.router?.navigate('create-routine')" title="Create Routine">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Folders & Routines Container -->
+                        <div id="folders-container" class="flex flex-col gap-md pb-xl px-sm">
+                            <!-- JavaScript will inject folders here safely -->
+                        </div>
+                    </div>
+                </div>
+                <!-- <div id="workout-home">
                     <div class="flex justify-between align-center mb-md">
                         <h2>My Routines</h2>
                         <button class="mf-btn mf-btn-primary mf-btn-sm" id="btn-create-routine">
@@ -71,7 +99,7 @@
                             first
                             template.</p>
                     </div>
-                </div>
+                </div> -->
 
                 <div id="routine-builder" class="app-shell-hidden">
                     <div class="flex justify-between align-center mb-md border-b pb-sm">
@@ -100,7 +128,7 @@
                             <p class="text-sm text-muted tabular-nums font-bold" id="global-timer">00:00:00</p>
                         </div> -->
                         <button class="mf-btn mf-btn-primary mf-btn-sm bg-success" id="btn-finish-workout">
-                            Finish <i class="fas fa-check fa-fw"></i>
+                            Finish
                         </button>
                     </div>
 
@@ -243,8 +271,7 @@
     <div id="view-auth" class="app-view flex flex-col align-center justify-center h-100vh px-md">
 
         <div class="text-center mb-lg">
-            <i class="fas fa-chart-simple text-primary text-xl mb-sm"></i>
-            <h1>MetricFit</h1>
+            <img src="image/g50.svg" style="max-width: 120px; margin-bottom: 15px;" alt="">
             <p class="text-muted">Clinical-Grade Training & Nutrition Tracker</p>
         </div>
 
