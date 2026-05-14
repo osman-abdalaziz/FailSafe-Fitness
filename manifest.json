@@ -1,5 +1,6 @@
 {
     "name": "MetricFit",
+    "description": "Clinical-Grade Training & Nutrition Tracker",
     "short_name": "MetricFit",
     "start_url": "/",
     "display": "standalone",
